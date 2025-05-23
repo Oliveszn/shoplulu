@@ -12,8 +12,8 @@ const registerUser = async (req, res) => {
     }
 
     // if user exists
-    const checkUser = await User.findByUsername(username);
-    if (checkUser)
+    const user = await User.findByUsername(username);
+    if (user)
       return res.status(401).json({
         success: false,
         message: "UserName Already exists. Please try again",
@@ -57,17 +57,14 @@ const loginUser = async (req, res) => {
 
   try {
     // if user exists
-    const checkUser = await User.findByUsername(username);
-    if (!checkUser)
+    const user = await User.findByUsername(username);
+    if (!user)
       return res.status(401).json({
         success: false,
         message: "Invalid Credentials",
       });
 
-    const checkPasswordMatch = await bcrypt.compare(
-      password,
-      checkUser.password
-    );
+    const checkPasswordMatch = await bcrypt.compare(password, user.password);
     if (!checkPasswordMatch)
       return res.status(401).json({
         success: false,
@@ -75,20 +72,26 @@ const loginUser = async (req, res) => {
       });
 
     const token = jwt.sign(
-      { id: checkUser._id, username: checkUser.username, role: checkUser.role },
+      { userId: user.id, username: user.username, role: user.role },
       process.env.JWT_SECRET,
-      { expiresIn: "1h" }
+      { expiresIn: "1d" }
     );
 
-    res.cookie("token", token, { httpOnly: true, secure: false }).json({
-      success: true,
-      message: "Logged in successfully",
-      user: {
-        role: checkUser.role,
-        id: checkUser._id,
-        userName: checkUser.userName,
-      },
-    });
+    res
+      .cookie("token", token, {
+        httpOnly: true,
+        secure: false,
+        samesite: "strict",
+      })
+      .json({
+        success: true,
+        message: "Logged in successfully",
+        user: {
+          role: user.role,
+          id: user._id,
+          userName: user.userName,
+        },
+      });
   } catch (error) {
     console.log(error);
     res.status(500).json({ error: "Login failed" });
@@ -105,28 +108,46 @@ const logout = (req, res) => {
 
 ////middleware to check auth status if user does an action and keep user logged in
 const authMiddleware = async (req, res, next) => {
-  const token = req.cookies.token;
+  // Try to get token from either cookies or Authorization header
+  const token =
+    req.cookies?.token || req.headers.authorization?.replace("Bearer ", "");
   if (!token) {
-    // Allow requests to proceed as unauthenticated
-    req.user = null;
-    return next();
+    return res.status(401).json({
+      success: false,
+      message: "Authentication required",
+    });
   }
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded;
-    return next();
-  } catch (error) {
-    if (error.name === "TokenExpiredError") {
-      res.clearCookie("token");
-      req.user = null;
-      return next();
+    // Flexible ID checking (supports both 'id' and 'userId')
+    const userId = decoded.userId || decoded.id;
+    if (!userId) {
+      throw new Error("Invalid token payload");
     }
 
+    req.user = {
+      id: userId, // Standardized property name
+      username: decoded.username, // Add other needed properties
+    };
+
+    return next();
+  } catch (error) {
     console.error("JWT verification failed:", error);
+    // Clear cookie if exists
+    if (req.cookies?.token) {
+      res.clearCookie("token");
+    }
+
+    if (error.name === "TokenExpiredError") {
+      return res.status(401).json({
+        success: false,
+        message: "Session expired, please login again",
+      });
+    }
     return res.status(401).json({
       success: false,
-      message: "Invalid token",
+      message: "Invalid authentication",
     });
   }
 };

@@ -2,40 +2,42 @@ const db = require("../db");
 
 const address = {
   async create({
-    userId,
-    addressLine1,
+    user_id,
+    address_line1,
     city,
     state,
-    postalCode,
+    postal_code,
     phone,
-    phone2,
+    phone_2,
     notes,
-    isDefault,
+    is_default,
   }) {
     // Validate required fields
-    if (!addressLine1 || !city || !state || !phone) {
+    if (!address_line1 || !city || !state || !phone) {
       throw new Error("Missing required fields ");
     }
 
     const query = `
-      INSERT INTO addresses (userId, addressLine1, city, state, postalCode, phone, phone2, notes, isDefault)
+      INSERT INTO address (user_id, address_line1, city, state, postal_code, phone, phone_2, notes, is_default)
       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
       RETURNING *
     `;
 
     const values = [
-      userId,
-      addressLine1,
+      user_id,
+      address_line1,
       city,
       state,
-      postalCode,
+      postal_code,
       phone,
-      phone2 || null,
+      phone_2 || null,
       notes,
-      isDefault || null,
+      is_default || null,
     ];
 
     const { rows } = await db.query(query, values);
     return rows[0];
   },
 };
+
+module.exports = address;
