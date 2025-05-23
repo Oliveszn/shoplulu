@@ -1,5 +1,6 @@
 const Products = require("../models/Products");
-
+const db = require("../db");
+/////for admin////
 //add a new product
 const addProduct = async (req, res) => {
   try {
@@ -43,4 +44,152 @@ const addProduct = async (req, res) => {
   }
 };
 
-module.exports = { addProduct };
+//fetch all products
+const fetchAllProducts = async (req, res) => {
+  try {
+    const allProducts = await Products.findAll();
+
+    res.status(200).json({
+      success: true,
+      data: allProducts,
+    });
+  } catch (error) {
+    console.error("error in product", error.message);
+    res.status(500).json({
+      success: false,
+      message: "error occureed",
+    });
+  }
+};
+
+//edit product
+const editProduct = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updateData = req.body;
+    const product = await Products.findById(id);
+
+    if (!product) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Product not found" });
+    }
+
+    const updatedProduct = await Products.update(id, updateData);
+
+    res.status(200).json({
+      success: true,
+      data: updatedProduct,
+    });
+  } catch (error) {
+    console.error("Error fetching product:", error.message);
+    res.status(500).json({
+      success: false,
+      message: "Error occurred while fetching product",
+    });
+  }
+};
+
+///delete product
+const deleteProduct = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    //check if the product exists
+    const existingProduct = await Products.findById(id);
+
+    if (!existingProduct) {
+      return res.status(404).json({
+        success: false,
+        message: "product not found",
+      });
+    }
+
+    const deletedProduct = await Products.deleteById(id);
+    res.status(200).json({
+      success: true,
+      message: " product delete succesful",
+      data: deletedProduct,
+    });
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).json({
+      success: false,
+      message: "error occured",
+    });
+  }
+};
+
+/////for users
+const getProductDetails = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const product = await Products.findById(id);
+
+    if (!product)
+      return res.status(404).json({
+        success: false,
+        message: "Product not found!",
+      });
+
+    res.status(200).json({
+      success: true,
+      data: product,
+    });
+  } catch (e) {
+    console.log(e);
+    res.status(500).json({
+      success: false,
+      message: "Some error occured",
+    });
+  }
+};
+
+const getFilteredProducts = async (req, res) => {
+  try {
+    const { category = "all", sub_category = "all" } = req.query;
+
+    // 2. Initialize base query and values
+    let query = "SELECT * FROM products WHERE 1=1";
+    const values = [];
+    let valueCounter = 1;
+
+    // 3. Handle category filter
+    if (category !== "all") {
+      const categories = category.split(",");
+      query += ` AND category = ANY($${valueCounter++})`;
+      values.push(categories);
+    }
+
+    // 4. Handle sub-category filter
+    if (sub_category !== "all") {
+      const subCategories = sub_category.split(",");
+      query += ` AND sub_category = ANY($${valueCounter++})`;
+      values.push(subCategories);
+    }
+
+    // 5. Execute query
+    const { rows: products } = await db.query(query, values);
+
+    res.status(200).json({
+      success: true,
+      data: products,
+      count: products.length,
+    });
+  } catch (error) {
+    console.error("filter error:", error.message);
+    res.status(500).json({
+      success: false,
+      message: "Some error occured",
+    });
+  }
+};
+
+module.exports = {
+  addProduct,
+  fetchAllProducts,
+  editProduct,
+  deleteProduct,
+  getProductDetails,
+  getFilteredProducts,
+};
