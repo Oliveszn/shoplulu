@@ -55,4 +55,102 @@ const addAddress = async (req, res) => {
   }
 };
 
-module.exports = { addAddress };
+// Get all addresses for user
+const getAddresses = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const addresses = await address.findByUserId(userId);
+
+    res.status(200).json({
+      success: true,
+      data: addresses,
+    });
+  } catch (error) {
+    console.error("Error fetching address:", error.message);
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch address",
+    });
+  }
+};
+
+///delete address
+const deleteAddress = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { id: addressId } = req.params;
+    const addresses = await address.findByUserId(userId);
+
+    if (!addresses) {
+      return res.status(404).json({
+        success: false,
+        message: "address not found",
+      });
+    }
+
+    const deletedAddress = await address.deleteAddress(userId, addressId);
+    if (!deletedAddress) {
+      return res.status(404).json({
+        success: false,
+        message: "failed to delete address",
+      });
+    }
+    res.status(200).json({
+      success: true,
+      message: "Address deleted succesful",
+      data: deletedAddress,
+    });
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).json({
+      success: false,
+      message: "error occured",
+    });
+  }
+};
+
+//edit address
+const editAddress = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { id: addressId } = req.params;
+    const updateData = req.body;
+    const selectAddress = await address.findByAddressId(addressId, userId);
+
+    // Validate required fields
+    if (!addressId || !updateData) {
+      return res.status(400).json({
+        success: false,
+        message: "Missing address ID or update data",
+      });
+    }
+
+    if (!selectAddress) {
+      return res.status(404).json({
+        success: false,
+        message: "No address found",
+      });
+    }
+
+    const updateAddress = await address.update(userId, addressId, updateData);
+    if (!updateAddress) {
+      return res.status(404).json({
+        success: false,
+        message: "Failed to update address",
+      });
+    }
+    res.status(200).json({
+      success: true,
+      data: updateAddress,
+      message: "address updated successfully",
+    });
+  } catch (error) {
+    console.error("Error updating address:", error.message);
+    res.status(500).json({
+      success: false,
+      message: "Error occurred while updating address",
+    });
+  }
+};
+
+module.exports = { addAddress, getAddresses, deleteAddress, editAddress };
