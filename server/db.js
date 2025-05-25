@@ -27,3 +27,18 @@ module.exports = {
 //   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
 //   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 // );
+
+// CREATE TABLE carts (
+//   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+//   user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+//   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+//   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+// );
+
+// CREATE TABLE cart_items (
+//   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+//   cart_id UUID NOT NULL REFERENCES carts(id) ON DELETE CASCADE,
+//   product_id UUID NOT NULL REFERENCES products(id) ON DELETE CASCADE,
+//   quantity INTEGER NOT NULL CHECK (quantity >= 1),
+//   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+// );
