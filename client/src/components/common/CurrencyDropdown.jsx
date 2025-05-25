@@ -13,7 +13,7 @@ const CurrencyDropdown = () => {
     <div className="relative ml-4">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center justify-between px-3 py-2 bg-white bg-opacity-20 rounded-md hover:bg-opacity-30 transition-all"
+        className="flex items-center justify-between px-3 py-2  transition-all cursor-pointer"
       >
         <span>{currency}</span>
         <svg
@@ -34,19 +34,19 @@ const CurrencyDropdown = () => {
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-full bg-white text-black rounded-md shadow-lg z-50">
+        <div className="absolute right-0 mt-2 w-full text-black rounded-md shadow-lg z-50">
           <button
             onClick={() => handleSelect("NGN")}
-            className={`block w-full text-left px-4 py-2 hover:bg-gray-100 ${
-              currency === "NGN" ? "bg-gray-100 font-medium" : ""
+            className={`block w-full text-left px-4 py-2 ${
+              currency === "NGN" ? " font-medium" : ""
             }`}
           >
             NGN
           </button>
           <button
             onClick={() => handleSelect("USD")}
-            className={`block w-full text-left px-4 py-2 hover:bg-gray-100 ${
-              currency === "USD" ? "bg-gray-100 font-medium" : ""
+            className={`block w-full text-left px-4 py-2 ${
+              currency === "USD" ? " font-medium" : ""
             }`}
           >
             USD
