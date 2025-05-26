@@ -2,9 +2,12 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import CurrencyDropdown from "../CurrencyDropdown";
 import MuiDrawer from "../../ui/MuiDrawer";
+import MobileNav from "./MobileNav";
 
 const Navbar = () => {
-  const [isDrawerOpen, setIsDrawerOpen] = useState("false");
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [isShopHovered, setIsShopHovered] = useState(false);
+  const [isMobileNav, setIsMobileNav] = useState(false);
   let links = [
     { name: "SHOP", link: "/shop" },
     { name: "ABOUT", link: "/about" },
@@ -21,22 +24,253 @@ const Navbar = () => {
       <nav className="w-full z-50 top-0 bg-[#ffffff] shadow-bottom">
         <div className="flex flex-row container mx-auto items-center justify-between py-6 px-2">
           <div className="flex items-center justify-start ">
-            <ul className="flex flex-row items-center gap-6">
+            <ul className="hidden md:flex flex-row items-center gap-6">
               {links.map((item) => (
-                <li key={item.name} className="">
-                  <Link to={item.link} key={item.name} className="">
-                    {item.name}
-                  </Link>
+                <li key={item.name} className="relative group">
+                  {item.name === "SHOP" ? (
+                    <div
+                      onMouseEnter={() => setIsShopHovered(true)}
+                      onMouseLeave={() => setIsShopHovered(false)}
+                      className="relative"
+                    >
+                      <Link
+                        to={item.link}
+                        key={item.name}
+                        className="relative hover:opacity-50"
+                      >
+                        {item.name}
+                      </Link>
+                      {isShopHovered && (
+                        <div
+                          className={`fixed top-0 left-0 bottom-20 w-full transition-all bg-amber-400 duration-500 ease-in-out z-50 transform ${
+                            isShopHovered
+                              ? "translate-y-5 opacity-100 visible"
+                              : "translate-y-0 opacity-0 invisible"
+                          }`}
+                          style={{ top: "var(--navbar-height, 20px)" }}
+                          // onMouseEnter={() => setIsShopHovered(true)}
+                          // onMouseLeave={() => setIsShopHovered(false)}
+                        >
+                          <div className="mx-aut relative top-6 p-6 bg-priColor rounded-xl shadow-xl ">
+                            <div className="grid grid-cols-4 relative z-10">
+                              <div>
+                                <ul className="space-y-2">
+                                  <li>
+                                    <Link
+                                      to="/shop/men"
+                                      className="hover:text-red-600"
+                                    >
+                                      All products
+                                    </Link>
+                                  </li>
+                                  <li>
+                                    <Link
+                                      to="/shop/women"
+                                      className="hover:text-red-600"
+                                    >
+                                      New Arrivals
+                                    </Link>
+                                  </li>
+                                  <li>
+                                    <Link
+                                      to="/shop/women"
+                                      className="hover:text-red-600"
+                                    >
+                                      SS23 Collections
+                                    </Link>
+                                  </li>
+                                  <li>
+                                    <Link
+                                      to="/shop/women"
+                                      className="hover:text-red-600"
+                                    >
+                                      Winter Collection
+                                    </Link>
+                                  </li>
+                                </ul>
+                              </div>
+
+                              <div>
+                                <h3 className="font-bold mb-2">Men</h3>
+                                <ul className="space-y-2">
+                                  <li>
+                                    <Link
+                                      to="/shop/men"
+                                      className="hover:text-red-600"
+                                    >
+                                      All
+                                    </Link>
+                                  </li>
+                                  <li>
+                                    <Link
+                                      to="/shop/women"
+                                      className="hover:text-red-600"
+                                    >
+                                      Tees
+                                    </Link>
+                                  </li>
+                                  <li>
+                                    <Link
+                                      to="/shop/women"
+                                      className="hover:text-red-600"
+                                    >
+                                      Hoodies
+                                    </Link>
+                                  </li>
+                                  <li>
+                                    <Link
+                                      to="/shop/women"
+                                      className="hover:text-red-600"
+                                    >
+                                      Vest
+                                    </Link>
+                                  </li>
+                                  <li>
+                                    <Link
+                                      to="/shop/women"
+                                      className="hover:text-red-600"
+                                    >
+                                      Shirt
+                                    </Link>
+                                  </li>
+                                </ul>
+                              </div>
+
+                              <div>
+                                <h3 className="font-bold mb-2">Accessories</h3>
+                                <ul className="space-y-2">
+                                  <li>
+                                    <Link
+                                      to="/shop/new"
+                                      className="hover:text-red-600"
+                                    >
+                                      All
+                                    </Link>
+                                  </li>
+                                  <li>
+                                    <Link
+                                      to="/shop/sale"
+                                      className="hover:text-red-600"
+                                    >
+                                      Bucket Hat
+                                    </Link>
+                                  </li>
+                                  <li>
+                                    <Link
+                                      to="/shop/sale"
+                                      className="hover:text-red-600"
+                                    >
+                                      Drip hat
+                                    </Link>
+                                  </li>
+                                  <li>
+                                    <Link
+                                      to="/shop/sale"
+                                      className="hover:text-red-600"
+                                    >
+                                      Bags
+                                    </Link>
+                                  </li>
+                                  <li>
+                                    <Link
+                                      to="/shop/sale"
+                                      className="hover:text-red-600"
+                                    >
+                                      Snapback
+                                    </Link>
+                                  </li>
+                                </ul>
+                              </div>
+
+                              <div>
+                                <h3 className="font-bold mb-2">Women</h3>
+                                <ul className="space-y-2">
+                                  <li>
+                                    <Link
+                                      to="/shop/new"
+                                      className="hover:text-red-600"
+                                    >
+                                      All
+                                    </Link>
+                                  </li>
+                                  <li>
+                                    <Link
+                                      to="/shop/sale"
+                                      className="hover:text-red-600"
+                                    >
+                                      Gown
+                                    </Link>
+                                  </li>
+                                  <li>
+                                    <Link
+                                      to="/shop/sale"
+                                      className="hover:text-red-600"
+                                    >
+                                      Shorts
+                                    </Link>
+                                  </li>
+                                  <li>
+                                    <Link
+                                      to="/shop/sale"
+                                      className="hover:text-red-600"
+                                    >
+                                      Tops
+                                    </Link>
+                                  </li>
+                                  <li>
+                                    <Link
+                                      to="/shop/sale"
+                                      className="hover:text-red-600"
+                                    >
+                                      Skirt
+                                    </Link>
+                                  </li>
+                                </ul>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    // Normal link for other items
+                    <Link to={item.link} className="hover:opacity-50">
+                      {item.name}
+                    </Link>
+                  )}
                 </li>
               ))}
             </ul>
+
+            <div className="flex md:hidden">
+              <button
+                className="cursor-pointer"
+                onClick={() => setIsMobileNav(true)}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                >
+                  <g id="Frame">
+                    <path
+                      id="Vector"
+                      d="M3 4H21V6H3V4ZM3 11H15V13H3V11ZM3 18H21V20H3V18Z"
+                      fill="black"
+                    ></path>
+                  </g>
+                </svg>
+              </button>
+            </div>
           </div>
 
           <div className="absolute left-1/2 transform -translate-x-1/2 ">
             <h1>LOGO</h1>
           </div>
 
-          <div className="flex items-center ml-auto justify-end gap-6">
+          <div className="flex items-center ml-auto justify-end md:gap-6">
             <div>
               <button className="cursor-pointer">
                 <svg
@@ -73,7 +307,7 @@ const Navbar = () => {
               <CurrencyDropdown />
             </div>
 
-            <div>
+            <div className="hidden md:block">
               <Link>LOGIN</Link>
             </div>
 
@@ -114,7 +348,26 @@ const Navbar = () => {
         </div>
       </nav>
       {/* Drawer component */}
-      <MuiDrawer isOpen={isDrawerOpen} onClose={() => setIsDrawerOpen(false)} />
+      <MuiDrawer
+        isOpen={isDrawerOpen}
+        onClose={() => setIsDrawerOpen(false)}
+        anchor="right"
+      >
+        <div className="flex flex-col items-center justify-center">
+          <h1 className="uppercase">No products in the cart.</h1>
+        </div>
+      </MuiDrawer>
+
+      {/* Mobile nav */}
+      <MuiDrawer
+        isOpen={isMobileNav}
+        onClose={() => setIsMobileNav(false)}
+        anchor="left"
+        width="100vw"
+        className="block md:hidden"
+      >
+        <MobileNav />
+      </MuiDrawer>
     </>
   );
 };
