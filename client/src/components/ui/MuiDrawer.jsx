@@ -7,7 +7,7 @@ const MuiDrawer = ({
   onClose,
   anchor = "right",
   width = "28vw",
-  // maxWidth = "",
+  maxWidth = "600px",
   children,
 }) => {
   return (
@@ -18,7 +18,7 @@ const MuiDrawer = ({
       sx={{
         "& .MuiDrawer-paper": {
           width: width,
-          // maxWidth: maxWidth,
+          maxWidth: maxWidth,
           boxSizing: "border-box",
         },
       }}
@@ -57,7 +57,7 @@ MuiDrawer.propTypes = {
   onClose: PropTypes.func.isRequired,
   anchor: PropTypes.oneOf(["left", "right", "top", "bottom"]),
   width: PropTypes.string,
-  // maxWidth: PropTypes.string,
+  maxWidth: PropTypes.string,
   children: PropTypes.node,
 };
 

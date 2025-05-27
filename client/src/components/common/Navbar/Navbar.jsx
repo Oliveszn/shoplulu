@@ -21,7 +21,7 @@ const Navbar = () => {
   ];
   return (
     <>
-      <nav className="w-full z-50 top-0 bg-[#ffffff] shadow-bottom">
+      <nav className="w-full fixed z-50 top-0 bg-[#ffffff] shadow-bottom">
         <div className="flex flex-row container mx-auto items-center justify-between py-6 px-2">
           <div className="flex items-center justify-start ">
             <ul className="hidden md:flex flex-row items-center gap-6">
@@ -364,7 +364,6 @@ const Navbar = () => {
         onClose={() => setIsMobileNav(false)}
         anchor="left"
         width="100vw"
-        className="block md:hidden"
       >
         <MobileNav />
       </MuiDrawer>

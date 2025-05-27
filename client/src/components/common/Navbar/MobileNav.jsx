@@ -3,8 +3,8 @@ import { Link } from "react-router-dom";
 
 const MobileNav = () => {
   return (
-    <div>
-      <header>
+    <div className="px-6 overflow-auto">
+      {/* <header>
         <button className="cursor-pointer ml-auto flex">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -26,36 +26,35 @@ const MobileNav = () => {
         <div className="absolute left-1/2 transform -translate-x-1/2 ">
           <h1>LOGO</h1>
         </div>
-      </header>
+      </header> */}
 
-      <hr />
+      <hr className="my-6" />
 
-      <main>
-        <div>
-          <ul>
+      <main className="flex flex-col justify-start">
+        <div className="flex flex-col gap-3">
+          <ul className="flex flex-col gap-3">
             <li>ALL PRODUCTS</li>
             <li>NEW ARRIVALS</li>
             <li>SS23 COLLECTION</li>
             <li>WINTER COLLECION</li>
           </ul>
-          <ul>
-            <li>ALL PRODUCTS</li>
-            <li>NEW ARRIVALS</li>
-            <li>SS23 COLLECTION</li>
-            <li>WINTER COLLECION</li>
+          <ul className="flex flex-col gap-3">
+            <li>MEN</li>
+            <li>WOMEN</li>
+            <li>ACCESSORIES</li>
           </ul>
         </div>
 
-        <hr />
+        <hr className="my-6" />
 
         <div>
           <Link>Login</Link>
         </div>
 
-        <hr />
+        <hr className="my-6" />
 
         <div>
-          <ul>
+          <ul className="flex flex-col gap-3">
             <li>ABOUT</li>
             <li>OUR STORE</li>
             <li>FAQS</li>
