@@ -9,7 +9,21 @@ const productRoute = require("./routes/productRoutes");
 const addressRoute = require("./routes/addressRoutes");
 
 ///middleware
-app.use(cors());
+app.use(
+  cors({
+    // origin: "http://localhost:5173",
+    origin: process.env.CLIENT_BASE_URL,
+    methods: ["GET", "POST", "DELETE", "PUT"],
+    allowedHeaders: [
+      "Content-Type",
+      "Authorization",
+      "Cache-Control",
+      "Expires",
+      "Pragma",
+    ],
+    credentials: true,
+  })
+);
 app.use(cookieParser());
 app.use(express.json());
 app.use("/api/auth", authRouter);

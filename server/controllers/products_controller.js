@@ -1,6 +1,27 @@
 const Products = require("../models/Products");
 const db = require("../db");
+const { imageUploadUtils } = require("../helpers/cloudinary");
 /////for admin////
+
+//handle image upload
+const handleImageUpload = async (req, res) => {
+  try {
+    const b64 = Buffer.from(req.file.buffer).toString("base64");
+    const url = "data:" + req.file.mimetype + ";base64," + b64;
+    const result = await imageUploadUtils(url);
+
+    res.json({
+      success: true,
+      result,
+    });
+  } catch (error) {
+    console.log(error);
+    res.json({
+      success: false,
+      message: "error occured",
+    });
+  }
+};
 //add a new product
 const addProduct = async (req, res) => {
   try {
@@ -186,6 +207,7 @@ const getFilteredProducts = async (req, res) => {
 };
 
 module.exports = {
+  handleImageUpload,
   addProduct,
   fetchAllProducts,
   editProduct,

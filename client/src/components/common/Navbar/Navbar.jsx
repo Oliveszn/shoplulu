@@ -308,7 +308,7 @@ const Navbar = () => {
             </div>
 
             <div className="hidden md:block">
-              <Link>LOGIN</Link>
+              <Link to="/auth/login">LOGIN</Link>
             </div>
 
             <div>
