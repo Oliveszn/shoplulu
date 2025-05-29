@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import reactLogo from "./assets/react.svg";
 import viteLogo from "/vite.svg";
 import Navbar from "./components/common/Navbar/navbar";
@@ -11,6 +11,10 @@ import { Route, Routes, useLocation } from "react-router-dom";
 import CheckAuth from "./components/common/CheckAuth";
 import { useDispatch, useSelector } from "react-redux";
 import AuthLayout from "./components/auth/Layout";
+import AdminDashboard from "./pages/admin-view/Dashboard";
+import AdminLayout from "./components/admin-view/AdminLayout";
+import { checkAuth } from "./store/auth-slice";
+import AdminProducts from "./pages/admin-view/Products";
 
 function App() {
   const location = useLocation();
@@ -19,9 +23,14 @@ function App() {
   );
   const dispatch = useDispatch();
 
+  ////////keeps me looged in as admin when i refresh or leave page
+  useEffect(() => {
+    dispatch(checkAuth());
+  }, [dispatch]);
+
   return (
     <>
-      <Navbar />
+      {/* <Navbar /> */}
 
       <Routes>
         <Route path="/" element={<Home />} />
@@ -39,6 +48,22 @@ function App() {
         >
           <Route path="login" element={<AuthLogin />} />
           {/* <Route path="register" element={<AuthRegister />} /> */}
+        </Route>
+
+        <Route
+          path="/admin"
+          element={
+            <CheckAuth isAuthenticated={isAuthenticated} user={user}>
+              <AdminLayout />
+            </CheckAuth>
+          }
+        >
+          <Route path="dashboard" element={<AdminDashboard />} />
+          <Route path="products" element={<AdminProducts />} />
+          {/* <Route path="thinking" element={<AdminThinking />} /> */}
+          {/* <Route path="news" element={<AdminNews />} /> */}
+          {/* <Route path="contacts" element={<AdminContacts />} /> */}
+          {/* <Route path="about" element={<AdminAbout />} /> */}
         </Route>
       </Routes>
     </>

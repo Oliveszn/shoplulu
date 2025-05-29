@@ -3,7 +3,7 @@ import { Navigate, useLocation } from "react-router-dom";
 
 const CheckAuth = ({ isAuthenticated, user, children }) => {
   const location = useLocation();
-  //if user is authenticated take to home page if its admin take to admin dashboard
+  //if user is authenticated take to home page, if its admin take to admin dashboard
   if (
     isAuthenticated &&
     (location.pathname.includes("/login") ||

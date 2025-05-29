@@ -83,6 +83,7 @@ const loginUser = async (req, res) => {
         secure: false,
         samesite: "strict",
       })
+      //  secure: process.env.NODE_ENV === 'production', // Should be true in prod
       .json({
         success: true,
         message: "Logged in successfully",
@@ -129,6 +130,7 @@ const authMiddleware = async (req, res, next) => {
     req.user = {
       id: userId, // Standardized property name
       username: decoded.username, // Add other needed properties
+      role: decoded.role,
     };
 
     return next();
