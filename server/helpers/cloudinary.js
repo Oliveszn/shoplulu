@@ -9,6 +9,19 @@ cloudinary.config({
 
 const storage = new multer.memoryStorage();
 
+// Modified to handle multiple files
+const uploadMultipleImages = async (files) => {
+  const uploadPromises = files.map((file) => {
+    const b64 = Buffer.from(file.buffer).toString("base64");
+    const dataURI = "data:" + file.mimetype + ";base64," + b64;
+    return cloudinary.uploader.upload(dataURI, {
+      resource_type: "auto",
+    });
+  });
+
+  return Promise.all(uploadPromises);
+};
+
 const imageUploadUtils = async (file) => {
   const result = await cloudinary.uploader.upload(file, {
     resource_type: "auto",
@@ -17,4 +30,4 @@ const imageUploadUtils = async (file) => {
 };
 
 const upload = multer({ storage });
-module.exports = { upload, imageUploadUtils };
+module.exports = { upload, imageUploadUtils, uploadMultipleImages };

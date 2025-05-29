@@ -1,24 +1,55 @@
 const Products = require("../models/Products");
 const db = require("../db");
-const { imageUploadUtils } = require("../helpers/cloudinary");
+const {
+  imageUploadUtils,
+  uploadMultipleImages,
+} = require("../helpers/cloudinary");
 /////for admin////
 
 //handle image upload
 const handleImageUpload = async (req, res) => {
+  // try {
+  //   const b64 = Buffer.from(req.file.buffer).toString("base64");
+  //   const url = "data:" + req.file.mimetype + ";base64," + b64;
+  //   const result = await imageUploadUtils(url);
+
+  //   res.json({
+  //     success: true,
+  //     result,
+  //   });
+  // } catch (error) {
+  //   console.log(error);
+  //   res.json({
+  //     success: false,
+  //     message: "error occured",
+  //   });
+  // }
+
   try {
-    const b64 = Buffer.from(req.file.buffer).toString("base64");
-    const url = "data:" + req.file.mimetype + ";base64," + b64;
-    const result = await imageUploadUtils(url);
+    // Check if files exist
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "No files uploaded",
+      });
+    }
+
+    // Upload all images
+    const results = await uploadMultipleImages(req.files);
+
+    // Extract URLs
+    const urls = results.map((result) => result.secure_url);
 
     res.json({
       success: true,
-      result,
+      urls, // Return array of URLs
     });
   } catch (error) {
-    console.log(error);
-    res.json({
+    console.error("Upload error:", error);
+    res.status(500).json({
       success: false,
-      message: "error occured",
+      message: "Error occurred during upload",
+      error: error.message,
     });
   }
 };
