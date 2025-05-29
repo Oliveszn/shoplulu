@@ -3,8 +3,7 @@ const db = require("../db");
 const Products = {
   async create({
     name,
-    image_url,
-    image__url,
+    images,
     price,
     stock_quantity,
     category,
@@ -15,14 +14,14 @@ const Products = {
       throw new Error("Missing required fields (name, price, stock_quantity)");
     }
     const query = `
-    INSERT INTO products (name, image_url, image__url, price, stock_quantity, category, sub_category) 
-    VALUES ($1, $2, $3, $4, $5, $6, $7) 
-    RETURNING product_id AS id, name, image_url, image__url, price, stock_quantity, category, sub_category, created_at
+    INSERT INTO products (name, images, price, stock_quantity, category, sub_category) 
+    VALUES ($1, $2, $3, $4, $5, $6) 
+    RETURNING product_id AS id, name, images, price, stock_quantity, category, sub_category, created_at
   `;
     const values = [
       name,
-      image_url,
-      image__url,
+      images,
+
       price,
       stock_quantity,
       category,
@@ -60,8 +59,7 @@ const Products = {
     `;
     const values = [
       updateData.name,
-      updateData.image_url,
-      updateData.image__url,
+      updateData.images,
       updateData.price,
       updateData.stock_quantity,
       updateData.category,

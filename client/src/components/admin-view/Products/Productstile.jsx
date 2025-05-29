@@ -57,7 +57,7 @@ const AdminProductTile = ({
           />
         </div>
         <div className="p-4">
-          <h2 className="text-xl font-bold mb-2 mt-2">{product?.title}</h2>
+          <h2 className="text-xl font-bold mb-2 mt-2">{product?.name}</h2>
           <div className="flex justify-between items-center mb-2">
             <span
               className="
@@ -70,8 +70,8 @@ const AdminProductTile = ({
         <div className="p-4 flex justify-between items-center border-t">
           <button
             onClick={() => {
-              setOpenCreateProductsDialog(true);
-              setCurrentEditedId(product?._id);
+              setIsDrawerOpen(true);
+              setCurrentEditedId(product?.product_id);
               setFormData(product);
             }}
             className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
@@ -79,7 +79,7 @@ const AdminProductTile = ({
             Edit
           </button>
           <button
-            onClick={() => handleDelete(product?._id)}
+            onClick={() => handleDelete(product?.product_id)}
             className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
           >
             Delete

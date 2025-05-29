@@ -25,15 +25,8 @@ const handleImageUpload = async (req, res) => {
 //add a new product
 const addProduct = async (req, res) => {
   try {
-    const {
-      name,
-      image_url,
-      image__url,
-      price,
-      stock_quantity,
-      category,
-      sub_category,
-    } = req.body;
+    const { name, images, price, stock_quantity, category, sub_category } =
+      req.body;
 
     // Validate input
     if (!name || !price || !stock_quantity) {
@@ -44,8 +37,7 @@ const addProduct = async (req, res) => {
 
     const newlyCreatedProduct = await Products.create({
       name,
-      image_url,
-      image__url,
+      images,
       price,
       stock_quantity,
       category,
