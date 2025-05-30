@@ -1,4 +1,5 @@
 import React from "react";
+import { subCategoriesByCategory } from "../../config";
 
 const CommonForm = ({
   formControls,
@@ -8,6 +9,24 @@ const CommonForm = ({
   buttonText,
   isBtnDisabled,
 }) => {
+  //first two funcs is written to dynamically alter subcat i dont understand but will come later
+  // Get current subcategories based on selected category
+  const getCurrentSubcategories = () => {
+    if (!formData.category) return [];
+    return subCategoriesByCategory[formData.category] || [];
+  };
+
+  // Update form controls with dynamic subcategories
+  const updatedFormControls = formControls.map((control) => {
+    if (control.name === "sub_category") {
+      return {
+        ...control,
+        options: getCurrentSubcategories(),
+      };
+    }
+    return control;
+  });
+
   function renderInputsByComponentType(getControlItem) {
     let element = null;
     const value = formData[getControlItem.name] || "";
@@ -91,7 +110,7 @@ const CommonForm = ({
     <div>
       <form onSubmit={onSubmit}>
         <div className="flex flex-col gap-3 ">
-          {formControls.map((controlItem) => (
+          {updatedFormControls.map((controlItem) => (
             <div className="grid w-full gap-2" key={controlItem.name}>
               <label className="mb-1">{controlItem.label}</label>
               {renderInputsByComponentType(controlItem)}

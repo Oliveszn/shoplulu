@@ -12,7 +12,7 @@ const AdminProductTile = ({
       <div>
         <div className="relative">
           <img
-            src={product?.images?.[1]}
+            src={product?.images?.[0]}
             alt={product?.title}
             className="w-full h-[300px] object-cover rounded-t-lg"
           />
@@ -24,7 +24,7 @@ const AdminProductTile = ({
               className="
                text-lg font-semibold text-primary"
             >
-              ${product?.price}
+              ₦{product?.price}
             </span>
           </div>
         </div>

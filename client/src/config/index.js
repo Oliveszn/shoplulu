@@ -48,23 +48,14 @@ export const addProductFormElements = [
     options: [
       { id: "men", label: "Men" },
       { id: "women", label: "Women" },
-      { id: "kids", label: "Kids" },
       { id: "accessories", label: "Accessories" },
-      { id: "footwear", label: "Footwear" },
     ],
   },
   {
     label: "Sub Category",
     name: "sub_category",
     componentType: "select",
-    options: [
-      { id: "nike", label: "Nike" },
-      { id: "adidas", label: "Adidas" },
-      { id: "puma", label: "Puma" },
-      { id: "levi", label: "Levi's" },
-      { id: "zara", label: "Zara" },
-      { id: "h&m", label: "H&M" },
-    ],
+    options: [], //was filled in dynamically wit subcat
   },
   {
     label: "Price",
@@ -82,3 +73,23 @@ export const addProductFormElements = [
     placeholder: "Enter total stock",
   },
 ];
+
+export const subCategoriesByCategory = {
+  men: [
+    { id: "tees", label: "Tees" },
+    { id: "shirt", label: "Shirt" },
+    { id: "pants", label: "Pants" },
+    { id: "denim", label: "Denim" },
+    { id: "hoodies", label: "Hoodies" },
+  ],
+  women: [
+    { id: "gown", label: "Gown" },
+    { id: "skirt", label: "Skirt" },
+    { id: "top", label: "Top" },
+    { id: "short", label: "Short" },
+  ],
+  accessories: [
+    { id: "hat", label: "Hat" },
+    { id: "bag", label: "Bag" },
+  ],
+};

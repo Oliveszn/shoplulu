@@ -31,6 +31,16 @@ const AdminProducts = () => {
   const { productList } = useSelector((state) => state.adminProducts);
   const dispatch = useDispatch();
 
+  const handleFormDataChange = (name, value) => {
+    setFormData((prev) => {
+      // When category changes, reset sub_category
+      if (name === "category") {
+        return { ...prev, [name]: value, sub_category: "" };
+      }
+      return { ...prev, [name]: value };
+    });
+  };
+
   const onSubmit = (e) => {
     e.preventDefault();
     console.log("FormData:", formData);
@@ -135,7 +145,8 @@ const AdminProducts = () => {
           <div className="py-6">
             <CommonForm
               formData={formData}
-              setFormData={setFormData}
+              // setFormData={setFormData}
+              setFormData={(newData) => setFormData(newData)}
               onSubmit={onSubmit}
               buttonText={currentEditedId !== null ? "Edit" : "Add"}
               formControls={addProductFormElements}
