@@ -29,5 +29,12 @@ const imageUploadUtils = async (file) => {
   return result;
 };
 
-const upload = multer({ storage });
+const upload = multer({
+  storage,
+  limits: {
+    fileSize: 10 * 1024 * 1024, // 10MB
+    files: 5, // Max 5 files
+  },
+});
+
 module.exports = { upload, imageUploadUtils, uploadMultipleImages };

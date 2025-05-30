@@ -8,17 +8,23 @@ const initialState = {
 
 export const addNewProduct = createAsyncThunk(
   "/products/addnewproduct",
-  async (formData) => {
-    const response = await axios.post(
-      `${import.meta.env.VITE_API_URL}/api/products/add`,
-      formData,
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
-    return response?.data;
+  async (formData, { getState }) => {
+    try {
+      const token = getState().auth.token || localStorage.getItem("token");
+      const response = await axios.post(
+        `${import.meta.env.VITE_API_URL}/api/products/add`,
+        formData,
+        {
+          withCredentials: true,
+        }
+      );
+      console.log("Token:", token);
+      return response?.data;
+    } catch (error) {
+      console.log(error);
+      //this particular error is to get message from the backend and its very good when gettting backend
+      console.log("Full error details:", error.response.data);
+    }
   }
 );
 

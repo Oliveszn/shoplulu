@@ -1,10 +1,6 @@
-// import { Button } from "@/components/ui/button";
-
-// import { addProductFormElements } from "@/config";
 import React, { Fragment, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import AdminProductTile from "../../components/admin-view/Products/Productstile";
-import { Drawer } from "@mui/material";
 import ImageUpload from "../../components/admin-view/ImageUpload";
 import { addProductFormElements } from "../../config";
 import {
@@ -19,19 +15,17 @@ import MuiDrawer from "../../components/ui/MuiDrawer";
 const AdminProducts = () => {
   const initialFormData = {
     name: "",
-    image_url: null,
-    image__url: null,
+    images: [],
     price: "",
     stock_quantity: "",
     category: "",
     sub_category: "",
   };
-  //   const [openCreateProductsDialog, setOpenCreateProductsDialog] =
-  //     useState(false);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [formData, setFormData] = useState(initialFormData);
-  const [imageFile, setImageFile] = useState(null);
-  const [uploadedImageUrl, setUploadedImageUrl] = useState("");
+  const [imageFiles, setImageFiles] = useState([]); // Changed from imageFile
+  const [uploadedImageUrls, setUploadedImageUrls] = useState([]);
+
   const [imageLoadingState, setImageLoadingState] = useState(false);
   const [currentEditedId, setCurrentEditedId] = useState(null);
   const { productList } = useSelector((state) => state.adminProducts);
@@ -39,12 +33,17 @@ const AdminProducts = () => {
 
   const onSubmit = (e) => {
     e.preventDefault();
+    console.log("FormData:", formData);
+    const productData = {
+      ...formData,
+      images: uploadedImageUrls,
+    };
 
     currentEditedId !== null
       ? dispatch(
           editProduct({
             id: currentEditedId,
-            formData,
+            formData: productData,
           })
         ).then((data) => {
           console.log(data, "edit");
@@ -52,20 +51,16 @@ const AdminProducts = () => {
           if (data?.payload?.success) {
             dispatch(fetchAllProducts());
             setFormData(initialFormData);
-            setOpenCreateProductsDialog(false);
+            setIsDrawerOpen(false);
+            setImageFiles([]);
             setCurrentEditedId(null);
           }
         })
-      : dispatch(
-          addNewProduct({
-            ...formData,
-            image: uploadedImageUrl,
-          })
-        ).then((data) => {
+      : dispatch(addNewProduct(productData)).then((data) => {
           if (data?.payload?.success) {
             dispatch(fetchAllProducts());
-            setOpenCreateProductsDialog(false);
-            setImageFile(null);
+            setIsDrawerOpen(false);
+            setImageFiles([]);
             setFormData(initialFormData);
             console.log("Product add successfully");
           }
@@ -129,10 +124,10 @@ const AdminProducts = () => {
             </h1>
           </header>
           <ImageUpload
-            imageFile={imageFile}
-            setImageFile={setImageFile}
-            uploadedImageUrl={uploadedImageUrl}
-            setUploadedImageUrl={setUploadedImageUrl}
+            imageFiles={imageFiles}
+            setImageFiles={setImageFiles}
+            uploadedImageUrls={uploadedImageUrls}
+            setUploadedImageUrls={setUploadedImageUrls}
             imageLoadingState={imageLoadingState}
             setImageLoadingState={setImageLoadingState}
             isEditMode={currentEditedId !== null}

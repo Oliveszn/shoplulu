@@ -1,15 +1,4 @@
 import React from "react";
-// import { Label } from "../ui/label";
-// import { Input } from "../ui/input";
-// import {
-//   Select,
-//   SelectContent,
-//   SelectTrigger,
-//   SelectValue,
-//   SelectItem,
-// } from "../ui/select";
-// import { Textarea } from "../ui/textarea";
-// import { Button } from "../ui/button";
 
 const CommonForm = ({
   formControls,
@@ -40,32 +29,32 @@ const CommonForm = ({
           />
         );
         break;
-      //   case "select":
-      // element = (
-      //   <Select
-      //     onValueChange={(value) =>
-      //       setFormData({
-      //         ...formData,
-      //         [getControlItem.name]: value,
-      //       })
-      //     }
-      //     value={value}
-      //   >
-      //     <SelectTrigger className="w-full">
-      //       <SelectValue placeholder={getControlItem.label} />
-      //     </SelectTrigger>
-      //     <SelectContent>
-      //       {getControlItem.options && getControlItem.options.length > 0
-      //         ? getControlItem.options.map((optionItem) => (
-      //             <SelectItem key={optionItem.id} value={optionItem.id}>
-      //               {optionItem.label}
-      //             </SelectItem>
-      //           ))
-      //         : null}
-      //     </SelectContent>
-      //   </Select>
-      // );
-      // break;
+
+      case "select":
+        element = (
+          <select
+            className="w-full border border-gray-300 rounded px-3 py-2"
+            value={value}
+            onChange={(e) =>
+              setFormData({
+                ...formData,
+                [getControlItem.name]: e.target.value,
+              })
+            }
+          >
+            <option value="" disabled>
+              {getControlItem.label}
+            </option>
+            {getControlItem.options && getControlItem.options.length > 0
+              ? getControlItem.options.map((optionItem) => (
+                  <option key={optionItem.id} value={optionItem.id}>
+                    {optionItem.label}
+                  </option>
+                ))
+              : null}
+          </select>
+        );
+        break;
 
       case "textarea":
         element = (
