@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import CurrencyDropdown from "../CurrencyDropdown";
 import MuiDrawer from "../../ui/MuiDrawer";
 import MobileNav from "./MobileNav";
+import { subCategoriesByCategory } from "../../../config";
 
 const Navbar = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -52,7 +53,7 @@ const Navbar = () => {
                           // onMouseLeave={() => setIsShopHovered(false)}
                         >
                           <div className="mx-aut relative top-6 p-6 bg-priColor rounded-xl shadow-xl ">
-                            <div className="grid grid-cols-4 relative z-10">
+                            <div className="grid grid-cols-[15%_85%] relative z-10">
                               <div>
                                 <ul className="space-y-2">
                                   <li>
@@ -90,142 +91,29 @@ const Navbar = () => {
                                 </ul>
                               </div>
 
-                              <div>
-                                <h3 className="font-bold mb-2">Men</h3>
-                                <ul className="space-y-2">
-                                  <li>
-                                    <Link
-                                      to="/shop/men"
-                                      className="hover:text-red-600"
+                              <div className="grid grid-cols-4 justify-start">
+                                {Object.entries(subCategoriesByCategory).map(
+                                  ([category, subCategories]) => (
+                                    <div
+                                      key={category}
+                                      className="flex flex-col"
                                     >
-                                      All
-                                    </Link>
-                                  </li>
-                                  <li>
-                                    <Link
-                                      to="/shop/women"
-                                      className="hover:text-red-600"
-                                    >
-                                      Tees
-                                    </Link>
-                                  </li>
-                                  <li>
-                                    <Link
-                                      to="/shop/women"
-                                      className="hover:text-red-600"
-                                    >
-                                      Hoodies
-                                    </Link>
-                                  </li>
-                                  <li>
-                                    <Link
-                                      to="/shop/women"
-                                      className="hover:text-red-600"
-                                    >
-                                      Vest
-                                    </Link>
-                                  </li>
-                                  <li>
-                                    <Link
-                                      to="/shop/women"
-                                      className="hover:text-red-600"
-                                    >
-                                      Shirt
-                                    </Link>
-                                  </li>
-                                </ul>
-                              </div>
-
-                              <div>
-                                <h3 className="font-bold mb-2">Accessories</h3>
-                                <ul className="space-y-2">
-                                  <li>
-                                    <Link
-                                      to="/shop/new"
-                                      className="hover:text-red-600"
-                                    >
-                                      All
-                                    </Link>
-                                  </li>
-                                  <li>
-                                    <Link
-                                      to="/shop/sale"
-                                      className="hover:text-red-600"
-                                    >
-                                      Bucket Hat
-                                    </Link>
-                                  </li>
-                                  <li>
-                                    <Link
-                                      to="/shop/sale"
-                                      className="hover:text-red-600"
-                                    >
-                                      Drip hat
-                                    </Link>
-                                  </li>
-                                  <li>
-                                    <Link
-                                      to="/shop/sale"
-                                      className="hover:text-red-600"
-                                    >
-                                      Bags
-                                    </Link>
-                                  </li>
-                                  <li>
-                                    <Link
-                                      to="/shop/sale"
-                                      className="hover:text-red-600"
-                                    >
-                                      Snapback
-                                    </Link>
-                                  </li>
-                                </ul>
-                              </div>
-
-                              <div>
-                                <h3 className="font-bold mb-2">Women</h3>
-                                <ul className="space-y-2">
-                                  <li>
-                                    <Link
-                                      to="/shop/new"
-                                      className="hover:text-red-600"
-                                    >
-                                      All
-                                    </Link>
-                                  </li>
-                                  <li>
-                                    <Link
-                                      to="/shop/sale"
-                                      className="hover:text-red-600"
-                                    >
-                                      Gown
-                                    </Link>
-                                  </li>
-                                  <li>
-                                    <Link
-                                      to="/shop/sale"
-                                      className="hover:text-red-600"
-                                    >
-                                      Shorts
-                                    </Link>
-                                  </li>
-                                  <li>
-                                    <Link
-                                      to="/shop/sale"
-                                      className="hover:text-red-600"
-                                    >
-                                      Tops
-                                    </Link>
-                                  </li>
-                                  <li>
-                                    <Link
-                                      to="/shop/sale"
-                                      className="hover:text-red-600"
-                                    >
-                                      Skirt
-                                    </Link>
-                                  </li>
-                                </ul>
+                                      <h2 className="font-bold mb-2 capitalize">
+                                        {category}
+                                      </h2>
+                                      <ul className="cursor-pointer list-none">
+                                        {subCategories.map((subCat) => (
+                                          <li
+                                            key={subCat.id}
+                                            className="capitalize"
+                                          >
+                                            {subCat.label}
+                                          </li>
+                                        ))}
+                                      </ul>
+                                    </div>
+                                  )
+                                )}
                               </div>
                             </div>
                           </div>
