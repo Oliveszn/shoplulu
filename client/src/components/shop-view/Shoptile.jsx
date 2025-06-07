@@ -5,10 +5,6 @@ const Shoptile = ({ product, handleGetProductDetails }) => {
     <div
       className="w-full max-w-sm mx-auto bg-transparent shadow"
       onClick={() => {
-        if (!product?.product_id) {
-          console.error("No product ID available");
-          return;
-        }
         handleGetProductDetails(product.product_id);
       }}
     >

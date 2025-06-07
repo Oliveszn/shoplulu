@@ -13,14 +13,11 @@ const Shop = () => {
   const navigate = useNavigate();
 
   const handleGetProductDetails = async (getCurrentProductId) => {
-    // dispatch(fetchProductDetails(getCurrentProductId));
-    // navigate("/product");
-
     try {
       const result = await dispatch(
         fetchProductDetails(getCurrentProductId)
       ).unwrap();
-      navigate("/product"); // Only navigate after successful fetch
+      navigate("/product");
     } catch (error) {
       console.error("Failed to fetch product:", error);
     }

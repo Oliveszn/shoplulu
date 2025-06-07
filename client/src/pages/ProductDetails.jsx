@@ -12,6 +12,9 @@ const ProductDetails = () => {
         <img src={productDetails.images?.[0]} />
         <h1 className="">{productDetails.name}</h1>
       </div>
+      <button className="p-4 bg-red-500 text-white cursor-pointer hover:opacity-50">
+        Add to Cart
+      </button>
     </div>
   );
 };

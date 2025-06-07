@@ -7,6 +7,7 @@ const PORT = process.env.PORT;
 const authRouter = require("./routes/authRoutes");
 const productRoute = require("./routes/productRoutes");
 const addressRoute = require("./routes/addressRoutes");
+const cartRoute = require("./routes/cartRoutes");
 
 ///middleware
 app.use(
@@ -29,4 +30,5 @@ app.use(express.json());
 app.use("/api/auth", authRouter);
 app.use("/api/products", productRoute);
 app.use("/api/address", addressRoute);
+app.use("/api/cart", cartRoute);
 app.listen(PORT, () => console.log(`server on ports ${5000}`));
