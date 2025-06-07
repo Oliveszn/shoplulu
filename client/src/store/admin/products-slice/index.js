@@ -4,6 +4,7 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 const initialState = {
   isLoading: false,
   productList: [],
+  productDetails: null,
 };
 
 export const addNewProduct = createAsyncThunk(
@@ -64,6 +65,28 @@ export const deleteProduct = createAsyncThunk(
   }
 );
 
+export const fetchProductDetails = createAsyncThunk(
+  "/products/fetchproductdetails",
+  async (id, thunkAPI) => {
+    if (!id || isNaN(id)) {
+      return thunkAPI.rejectWithValue({
+        success: false,
+        message: "Invalid product ID",
+      });
+    }
+    try {
+      const result = await axios.get(
+        `${import.meta.env.VITE_API_URL}/api/products/${id}`
+      );
+
+      return result.data;
+    } catch (error) {
+      console.log("Full error details:", error.response.data);
+      return thunkAPI.rejectWithValue(error.response.data);
+    }
+  }
+);
+
 const AdminProductsSlice = createSlice({
   name: "adminProduct",
   initialState,
@@ -80,6 +103,17 @@ const AdminProductsSlice = createSlice({
       .addCase(fetchAllProducts.rejected, (state, action) => {
         state.isLoading = false;
         state.productList = [];
+      })
+      .addCase(fetchProductDetails.pending, (state, action) => {
+        state.isLoading = true;
+      })
+      .addCase(fetchProductDetails.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.productDetails = action.payload.data;
+      })
+      .addCase(fetchProductDetails.rejected, (state, action) => {
+        state.isLoading = false;
+        state.productDetails = null;
       });
   },
 });

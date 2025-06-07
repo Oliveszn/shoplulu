@@ -1,8 +1,17 @@
 import React from "react";
 
-const Shoptile = ({ product }) => {
+const Shoptile = ({ product, handleGetProductDetails }) => {
   return (
-    <div className="w-full max-w-sm mx-auto bg-transparent shadow">
+    <div
+      className="w-full max-w-sm mx-auto bg-transparent shadow"
+      onClick={() => {
+        if (!product?.product_id) {
+          console.error("No product ID available");
+          return;
+        }
+        handleGetProductDetails(product.product_id);
+      }}
+    >
       <div className="">
         <div className="relative group h-[400px] overflow-hidden">
           <img

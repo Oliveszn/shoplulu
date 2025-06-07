@@ -15,6 +15,7 @@ import AdminDashboard from "./pages/admin-view/Dashboard";
 import AdminLayout from "./components/admin-view/AdminLayout";
 import { checkAuth } from "./store/auth-slice";
 import AdminProducts from "./pages/admin-view/Products";
+import ProductDetails from "./pages/ProductDetails";
 
 function App() {
   const location = useLocation();
@@ -37,6 +38,7 @@ function App() {
         <Route path="/about" element={<About />} />
         <Route path="/shop" element={<Shop />} />
         <Route path="/store" element={<Store />} />
+        <Route path="/product" element={<ProductDetails />} />
 
         <Route
           path="/auth"
