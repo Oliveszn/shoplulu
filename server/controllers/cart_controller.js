@@ -2,7 +2,7 @@ const db = require("../db");
 
 // Helper function to validate product and stock
 const validateProduct = async (productId, quantity) => {
-  const productRes = await pool.query(
+  const productRes = await db.query(
     "SELECT price, stock FROM products WHERE product_id = $1",
     [productId]
   );
@@ -18,8 +18,8 @@ const validateProduct = async (productId, quantity) => {
 
 const addToCart = async (req, res) => {
   const { productId, quantity } = req.body;
-  const userId = req.user?.userId; // From auth middleware (e.g., JWT)
-  const guestCart = req.body.guestCart; // Guest cart from frontend (optional)
+  const userId = req.user?.id;
+  const guestId = req.body.guestCart;
 
   // Validate inputs
   if (!productId || !Number.isInteger(quantity) || quantity <= 0) {
@@ -28,26 +28,14 @@ const addToCart = async (req, res) => {
 
   try {
     if (!userId) {
-      // Guest: Handle cart in memory (to be stored in localStorage by frontend)
-      const guestId =
-        guestCart?.guestId ||
-        `guest_${Date.now()}_${Math.random().toString(36).slice(2)}`;
-      const cart = guestCart || { guestId, items: [] };
+      const newGuestId =
+        guestId || `guest_${Date.now()}_${Math.random().toString(36).slice(2)}`;
 
-      // Validate product
-      const price = await validateProduct(productId, quantity);
-
-      // Update or add item
-      const existingItem = cart.items.find(
-        (item) => item.productId === productId
-      );
-      if (existingItem) {
-        existingItem.quantity += quantity;
-      } else {
-        cart.items.push({ productId, quantity, price });
-      }
-
-      return res.json({ cart, message: "Item added to guest cart" });
+      return res.json({
+        guestId: newGuestId,
+        items: [{ productId, quantity }],
+        message: "Item added to guest cart",
+      });
     }
 
     // Authenticated user: Handle cart in database
@@ -55,58 +43,70 @@ const addToCart = async (req, res) => {
     try {
       await client.query("BEGIN");
 
-      // Validate product
-      const price = await validateProduct(productId, quantity);
-
-      // Get or create cart
-      let cartRes = await client.query(
-        `INSERT INTO carts (user_id, created_at, updated_at)
-         VALUES ($1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
-         ON CONFLICT (user_id) DO NOTHING
-         RETURNING cart_id`,
+      // 1. Get or create user's cart
+      const {
+        rows: [cart],
+      } = await client.query(
+        `
+        INSERT INTO carts (user_id) 
+        VALUES ($1) 
+        ON CONFLICT (user_id) DO UPDATE SET updated_at = NOW()
+        RETURNING cart_id
+      `,
         [userId]
       );
-      let cartId = cartRes.rows[0]?.cart_id;
-      if (!cartId) {
-        const existingCart = await client.query(
-          "SELECT cart_id FROM carts WHERE user_id = $1",
-          [userId]
-        );
-        cartId = existingCart.rows[0].cart_id;
+
+      // 2. Merge guest cart if provided
+      if (guestId) {
+        const guestItems = req.body.guestItems || [];
+        for (const item of guestItems) {
+          await client.query(
+            `
+            INSERT INTO cart_items (cart_id, product_id, quantity)
+            VALUES ($1, $2, $3, $4)
+            ON CONFLICT (cart_id, product_id)
+            DO UPDATE SET 
+              quantity = cart_items.quantity + EXCLUDED.quantity,
+              updated_at = NOW()
+          `,
+            [cart.cart_id, item.productId, item.quantity]
+          );
+        }
       }
 
-      // Add or update item
+      // 3. Add current item
       await client.query(
-        `INSERT INTO cart_items (cart_id, product_id, quantity, price, created_at, updated_at)
-         VALUES ($1, $2, $3, $4, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
-         ON CONFLICT (cart_id, product_id)
-         DO UPDATE SET quantity = cart_items.quantity + EXCLUDED.quantity,
-                       updated_at = CURRENT_TIMESTAMP`,
-        [cartId, productId, quantity, price]
+        `
+        INSERT INTO cart_items (cart_id, product_id, quantity)
+        VALUES ($1, $2, $3, $4)
+        ON CONFLICT (cart_id, product_id)
+        DO UPDATE SET 
+          quantity = cart_items.quantity + EXCLUDED.quantity,
+          updated_at = NOW()
+      `,
+        [cart.cart_id, productId, quantity]
       );
 
-      // Fetch updated cart
-      const updatedCartRes = await client.query(
-        `SELECT ci.product_id, ci.quantity, ci.price
-         FROM cart_items ci
-         JOIN carts c ON ci.cart_id = c.cart_id
-         WHERE c.user_id = $1`,
-        [userId]
+      // 4. Get updated cart
+      const { rows: items } = await client.query(
+        `
+        SELECT product_id, quantity
+        FROM cart_items 
+        WHERE cart_id = $1
+      `,
+        [cart.cart_id]
       );
 
       await client.query("COMMIT");
 
-      // Format cart for response and localStorage
-      const cart = {
+      return res.json({
         userId,
-        items: updatedCartRes.rows.map((row) => ({
-          productId: row.product_id,
-          quantity: row.quantity,
-          price: parseFloat(row.price),
+        items: items.map((item) => ({
+          productId: item.product_id,
+          quantity: item.quantity,
         })),
-      };
-
-      return res.json({ cart, message: "Item added to user cart" });
+        message: "Item added to cart",
+      });
     } catch (error) {
       await client.query("ROLLBACK");
       throw error;
@@ -114,6 +114,7 @@ const addToCart = async (req, res) => {
       client.release();
     }
   } catch (error) {
+    console.error("Cart error:", error);
     return res
       .status(500)
       .json({ error: error.message || "Failed to add to cart" });
@@ -121,3 +122,11 @@ const addToCart = async (req, res) => {
 };
 
 module.exports = { addToCart };
+
+// "guestId": "guest_1749394006949_3quwhh8mk9u",
+//     "items": [
+//         {
+//             "productId": 21,
+//             "quantity": 2
+//         }
+//     ],

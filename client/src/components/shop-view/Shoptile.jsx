@@ -1,12 +1,12 @@
 import React from "react";
 
-const Shoptile = ({ product, handleGetProductDetails }) => {
+const Shoptile = ({ product, handleGetProductDetails, handleAddtoCart }) => {
   return (
     <div
       className="w-full max-w-sm mx-auto bg-transparent shadow"
-      onClick={() => {
-        handleGetProductDetails(product.product_id);
-      }}
+      // onClick={() => {
+      //   handleGetProductDetails(product.product_id);
+      // }}
     >
       <div className="">
         <div className="relative group h-[400px] overflow-hidden">
@@ -58,6 +58,13 @@ const Shoptile = ({ product, handleGetProductDetails }) => {
             </span>
           </div>
         </div>
+
+        <button
+          onClick={() => handleAddtoCart(product.product_id, product.stock, 2)}
+          className="w-full"
+        >
+          Add to cart
+        </button>
       </div>
     </div>
   );
