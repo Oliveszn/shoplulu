@@ -155,9 +155,24 @@ const authMiddleware = async (req, res, next) => {
   }
 };
 
+const flexibleAuth = (req, res, next) => {
+  const token = req.header("Authorization")?.replace("Bearer ", "");
+
+  if (token) {
+    try {
+      req.user = jwt.verify(token, process.env.JWT_SECRET);
+    } catch (err) {
+      // Don't block if token is invalid - treat as guest
+      console.warn("Invalid token - proceeding as guest");
+    }
+  }
+  next();
+};
+
 module.exports = {
   registerUser,
   loginUser,
   logout,
   authMiddleware,
+  flexibleAuth,
 };

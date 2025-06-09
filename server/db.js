@@ -1,15 +1,17 @@
 // db.js
+require("dotenv").config();
 const { Pool } = require("pg");
 const pool = new Pool({
-  user: "postgres",
-  host: "localhost",
-  database: "auth_lulu",
-  password: "Kardashian1", // Same as pgAdmin login
-  port: 5432,
+  user: process.env.DB_USER,
+  host: process.env.DB_HOST,
+  database: process.env.DB_DATABASE,
+  password: process.env.DB_PASSWORD, // Same as pgAdmin login
+  port: process.env.DB_PORT,
 });
 
 module.exports = {
   query: (text, params) => pool.query(text, params),
+  connect: () => pool.connect(),
 };
 
 // CREATE TABLE addresses (

@@ -1,20 +1,8 @@
 const db = require("../db");
 
-// Helper function to validate product and stock
-const validateProduct = async (productId, quantity) => {
-  const productRes = await db.query(
-    "SELECT price, stock FROM products WHERE product_id = $1",
-    [productId]
-  );
-  if (productRes.rows.length === 0) {
-    throw new Error("Product not found");
-  }
-  const { price, stock } = productRes.rows[0];
-  if (quantity > stock) {
-    throw new Error("Insufficient stock");
-  }
-  return price;
-};
+db.query("SELECT NOW()")
+  .then(() => console.log("DB connected"))
+  .catch((err) => console.error("DB connection error:", err));
 
 const addToCart = async (req, res) => {
   const { productId, quantity } = req.body;
@@ -27,6 +15,22 @@ const addToCart = async (req, res) => {
   }
 
   try {
+    const product = await db.query(
+      "SELECT product_id, stock FROM products WHERE product_id = $1",
+      [productId]
+    );
+
+    if (product.rows.length === 0) {
+      return res.status(404).json({ error: "Product not found" });
+    }
+
+    if (quantity > product.rows[0].stock) {
+      return res.status(400).json({ error: "Insufficient stock" });
+    }
+
+    req.product = product.rows[0]; // Attach product info for later use
+    next();
+
     if (!userId) {
       const newGuestId =
         guestId || `guest_${Date.now()}_${Math.random().toString(36).slice(2)}`;
@@ -44,17 +48,21 @@ const addToCart = async (req, res) => {
       await client.query("BEGIN");
 
       // 1. Get or create user's cart
-      const {
-        rows: [cart],
-      } = await client.query(
-        `
-        INSERT INTO carts (user_id) 
-        VALUES ($1) 
-        ON CONFLICT (user_id) DO UPDATE SET updated_at = NOW()
-        RETURNING cart_id
-      `,
+      const cartRes = await client.query(
+        `WITH new_cart AS (
+         INSERT INTO carts (user_id)
+         VALUES ($1)
+         ON CONFLICT (user_id) DO UPDATE SET updated_at = NOW()
+         RETURNING cart_id
+       )
+       SELECT cart_id FROM new_cart
+       UNION
+       SELECT cart_id FROM carts WHERE user_id = $1`,
         [userId]
       );
+
+      if (!cartRes.rows[0]) throw new Error("Failed to get/create cart");
+      const cartId = cartRes.rows[0].cart_id;
 
       // 2. Merge guest cart if provided
       if (guestId) {
@@ -63,13 +71,13 @@ const addToCart = async (req, res) => {
           await client.query(
             `
             INSERT INTO cart_items (cart_id, product_id, quantity)
-            VALUES ($1, $2, $3, $4)
+            VALUES ($1, $2, $3)
             ON CONFLICT (cart_id, product_id)
             DO UPDATE SET 
               quantity = cart_items.quantity + EXCLUDED.quantity,
               updated_at = NOW()
           `,
-            [cart.cart_id, item.productId, item.quantity]
+            [cartId, item.productId, item.quantity]
           );
         }
       }
@@ -78,13 +86,13 @@ const addToCart = async (req, res) => {
       await client.query(
         `
         INSERT INTO cart_items (cart_id, product_id, quantity)
-        VALUES ($1, $2, $3, $4)
+        VALUES ($1, $2, $3)
         ON CONFLICT (cart_id, product_id)
         DO UPDATE SET 
           quantity = cart_items.quantity + EXCLUDED.quantity,
           updated_at = NOW()
       `,
-        [cart.cart_id, productId, quantity]
+        [cartId, productId, quantity]
       );
 
       // 4. Get updated cart
@@ -94,7 +102,7 @@ const addToCart = async (req, res) => {
         FROM cart_items 
         WHERE cart_id = $1
       `,
-        [cart.cart_id]
+        [cartId]
       );
 
       await client.query("COMMIT");
@@ -122,11 +130,3 @@ const addToCart = async (req, res) => {
 };
 
 module.exports = { addToCart };
-
-// "guestId": "guest_1749394006949_3quwhh8mk9u",
-//     "items": [
-//         {
-//             "productId": 21,
-//             "quantity": 2
-//         }
-//     ],
