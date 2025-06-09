@@ -6,21 +6,22 @@ import {
 } from "../store/admin/products-slice";
 import Shoptile from "../components/shop-view/Shoptile";
 import { useNavigate } from "react-router-dom";
-import { addToCart } from "../store/cart-slice";
+import {
+  addToCart,
+  loadCartFromStorage,
+  selectCartItems,
+  selectCartStatus,
+} from "../store/cart-slice";
 import ProductDetails from "./ProductDetails";
 
 const Shop = () => {
   const { productList } = useSelector((state) => state.adminProducts);
-  const { cart, isLoading, error } = useSelector((state) => state.cart);
+  const { cart } = useSelector((state) => state.cart);
   const { user } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
-  const [cartFeedback, setCartFeedback] = useState({
-    visible: false,
-    message: "",
-    isError: false,
-  });
+  const items = useSelector(selectCartItems);
+  const status = useSelector(selectCartStatus);
 
   const handleGetProductDetails = async (getCurrentProductId) => {
     try {
@@ -33,83 +34,38 @@ const Shop = () => {
     }
   };
 
-  const handleAddtoCart = async (productId, totalStock, quantity = 1) => {
-    // try {
-    //   // Validate stock (assumes product data includes stock)
-    //   if (totalStock <= 0) {
-    //     console.error("Product is out of stock");
-    //     return;
-    //   }
-
-    //   // Check current cart for item (optional, for UI feedback)
-    //   const existingItem = cart.items.find(
-    //     (item) => item.productId === productId
-    //   );
-    //   if (existingItem && existingItem.quantity >= totalStock) {
-    //     console.error("Cannot add more items than available stock");
-    //     return;
-    //   }
-
-    //   // Dispatch addToCart action
-    //   const result = await dispatch(
-    //     addToCart({
-    //       productId,
-    //       quantity: 1,
-    //     })
-    //   ).unwrap(); // unwrap() throws errors for rejected thunks
-
-    //   // Show success feedback
-    //   console.log("Product added to cart");
-    // } catch (error) {
-    //   console.error(error || "Failed to add to cart");
-    // }
-
-    try {
-      // Reset previous feedback
-      setCartFeedback({ visible: false, message: "", isError: false });
-
-      // Validate stock
-      if (totalStock <= 0) {
-        setCartFeedback({
-          visible: true,
-          message: "Product is out of stock",
-          isError: true,
-        });
-        return;
+  const handleAddToCart = (productId, quantity) => {
+    console.log("Dispatching:", productId, quantity);
+    dispatch(addToCart({ productId, quantity })).then((result) => {
+      if (addToCart.fulfilled.match(result)) {
+        console.log("Success!", result.payload);
+      } else {
+        console.log("Failed!", result.error);
       }
-
-      // Check current cart
-      const existingItem = cart.items.find(
-        (item) => item.productId === productId
-      );
-      const availableQty = totalStock - (existingItem?.quantity || 0);
-
-      if (availableQty < quantity) {
-        setCartFeedback({
-          visible: true,
-          message: `Only ${availableQty} available`,
-          isError: true,
-        });
-        return;
-      }
-
-      // Dispatch action
-      await dispatch(addToCart({ productId, quantity })).unwrap();
-
-      // Success feedback
-      setCartFeedback({
-        visible: true,
-        message: `Added ${quantity} item${quantity > 1 ? "s" : ""} to cart`,
-        isError: false,
-      });
-    } catch (error) {
-      setCartFeedback({
-        visible: true,
-        message: error.message || "Failed to add to cart",
-        isError: true,
-      });
-    }
+    });
   };
+
+  // Add this useEffect
+  useEffect(() => {
+    // Check if we have a guest ID in localStorage
+    const guestId = localStorage.getItem("guestId");
+
+    if (!user && !guestId) {
+      // If no user is logged in AND no guest ID exists
+      const newGuestId = `guest_${Date.now()}_${Math.random()
+        .toString(36)
+        .slice(2)}`;
+      localStorage.setItem("guestId", newGuestId);
+      console.log("Generated new guest ID:", newGuestId);
+    }
+
+    // Load cart from localStorage
+    dispatch(loadCartFromStorage());
+  }, [dispatch, user]);
+
+  useEffect(() => {
+    dispatch(loadCartFromStorage());
+  }, [dispatch]);
 
   useEffect(() => {
     dispatch(fetchAllProducts());
@@ -123,25 +79,13 @@ const Shop = () => {
                 product={productItem}
                 key={productItem.product_id || i}
                 handleGetProductDetails={handleGetProductDetails}
-                handleAddtoCart={handleAddtoCart}
+                handleAddtoCart={handleAddToCart}
               />
             ))
           : null}
       </div>
 
       {/* <ProductDetails handleAddtoCart={handleAddtoCart}/> */}
-      {cartFeedback.visible && (
-        <div
-          className={`fixed top-4 right-4 p-4 rounded-md 
-    ${
-      cartFeedback.isError
-        ? "bg-red-100 text-red-800"
-        : "bg-green-100 text-green-800"
-    }`}
-        >
-          {cartFeedback.message}
-        </div>
-      )}
     </div>
   );
 };

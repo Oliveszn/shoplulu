@@ -3,13 +3,10 @@ const db = require("../db");
 db.query("SELECT NOW()")
   .then(() => console.log("DB connected"))
   .catch((err) => console.error("DB connection error:", err));
-
-const addToCart = async (req, res) => {
+//middleware
+const validateProducts = async (req, res, next) => {
   const { productId, quantity } = req.body;
-  const userId = req.user?.id;
-  const guestId = req.body.guestCart;
-
-  // Validate inputs
+  // to validate the product in the request
   if (!productId || !Number.isInteger(quantity) || quantity <= 0) {
     return res.status(400).json({ error: "Invalid productId or quantity" });
   }
@@ -30,18 +27,55 @@ const addToCart = async (req, res) => {
 
     req.product = product.rows[0]; // Attach product info for later use
     next();
+  } catch (error) {
+    console.error("Validation error:", err);
+    res.status(500).json({ error: "Product validation failed" });
+  }
+};
 
-    if (!userId) {
-      const newGuestId =
-        guestId || `guest_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+// For guests
+const guestCarts = new Map();
+const addToGuestCart = async (req, res) => {
+  const { productId, quantity, guestId } = req.body;
 
-      return res.json({
-        guestId: newGuestId,
-        items: [{ productId, quantity }],
-        message: "Item added to guest cart",
-      });
+  try {
+    const newGuestId =
+      guestId || `guest_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+
+    // Get or create guest cart
+    let cart = guestCarts.get(guestId) || { items: [] };
+
+    // Find existing item
+    const existingItemIndex = cart.items.findIndex(
+      (item) => item.productId === productId
+    );
+
+    if (existingItemIndex >= 0) {
+      // Update quantity if exists
+      cart.items[existingItemIndex].quantity += quantity;
+    } else {
+      // Add new item
+      cart.items.push({ productId, quantity });
     }
 
+    guestCarts.set(newGuestId, cart);
+    return res.json({
+      guestId: newGuestId,
+      // items: [{ productId, quantity }],
+      items: cart.items,
+      message: "Item added to guest cart",
+    });
+  } catch (error) {
+    console.error("Guest cart error:", error);
+    return res.status(500).json({ error: "Failed to update guest cart" });
+  }
+};
+
+const addToCart = async (req, res) => {
+  const { productId, quantity } = req.body;
+  const userId = req.user?.id;
+
+  try {
     // Authenticated user: Handle cart in database
     const client = await db.connect();
     try {
@@ -63,6 +97,18 @@ const addToCart = async (req, res) => {
 
       if (!cartRes.rows[0]) throw new Error("Failed to get/create cart");
       const cartId = cartRes.rows[0].cart_id;
+
+      const existingItemIndex = cart.items.findIndex(
+        (item) => item.productId === productId
+      );
+
+      if (existingItemIndex >= 0) {
+        // Update quantity if product exists
+        cart.items[existingItemIndex].quantity += quantity;
+      } else {
+        // Add new item if product doesn't exist
+        cart.items.push({ productId, quantity });
+      }
 
       // 2. Merge guest cart if provided
       if (guestId) {
@@ -129,4 +175,4 @@ const addToCart = async (req, res) => {
   }
 };
 
-module.exports = { addToCart };
+module.exports = { addToCart, addToGuestCart, validateProducts };

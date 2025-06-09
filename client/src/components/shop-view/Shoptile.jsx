@@ -1,6 +1,10 @@
 import React from "react";
+import { selectCartItems, selectCartStatus } from "../../store/cart-slice";
+import { useSelector } from "react-redux";
 
 const Shoptile = ({ product, handleGetProductDetails, handleAddtoCart }) => {
+  const items = useSelector(selectCartItems);
+  const status = useSelector(selectCartStatus);
   return (
     <div
       className="w-full max-w-sm mx-auto bg-transparent shadow"
@@ -60,10 +64,13 @@ const Shoptile = ({ product, handleGetProductDetails, handleAddtoCart }) => {
         </div>
 
         <button
-          onClick={() => handleAddtoCart(product.product_id, product.stock, 2)}
+          // onClick={() => handleAddtoCart(product.product_id, product.stock, 2)}
+          onClick={() => handleAddtoCart(product.product_id, product.stock)}
+          disabled={status === "loading"}
           className="w-full"
         >
-          Add to cart
+          {/* Add to cart */}
+          {status === "loading" ? "Adding..." : "Add to Cart"}
         </button>
       </div>
     </div>

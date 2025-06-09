@@ -1,5 +1,9 @@
 const express = require("express");
-const { addToCart } = require("../controllers/cart_controller");
+const {
+  addToCart,
+  addToGuestCart,
+  validateProducts,
+} = require("../controllers/cart_controller");
 const {
   authMiddleware,
   flexibleAuth,
@@ -7,7 +11,10 @@ const {
 
 const router = express.Router();
 
-// Middleware to attach userId (optional, for guests)
-router.post("/add", flexibleAuth, addToCart);
+///for guests
+router.post("/guest/add", validateProducts, addToGuestCart);
+
+// for auth users
+router.post("/user/add", authMiddleware, validateProducts, addToCart);
 
 module.exports = router;
