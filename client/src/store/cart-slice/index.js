@@ -5,7 +5,6 @@ const generateGuestId = () =>
   `guest_${Date.now()}_${Math.random().toString(36).slice(2)}`;
 
 const initialState = {
-  //   cartItems: [],
   cart: { items: [] },
   status: "idle",
   error: null,
@@ -21,13 +20,6 @@ export const addToCart = createAsyncThunk(
     const guestItems = JSON.parse(localStorage.getItem("guestItems") || "[]");
 
     try {
-      // Optimistic update
-      // const tempCart = {
-      //   ...(isGuest
-      //     ? { guestId, items: [...state.cart.items, { productId, quantity }] }
-      //     : { items: [...state.cart.items, { productId, quantity }] }),
-      // };
-      // localStorage.setItem("tempCart", JSON.stringify(tempCart));
       const payload = {
         productId,
         quantity,
@@ -43,14 +35,7 @@ export const addToCart = createAsyncThunk(
         `${import.meta.env.VITE_API_URL}/api/cart/${
           isGuest ? "guest" : "user"
         }/add`,
-        // { productId, quantity },
-        // {
-        //   headers: {
-        //     "Content-Type": "application/json",
-        //     ...(authToken && { Authorization: `Bearer ${authToken}` }),
-        //     ...(isGuest && { "X-Guest-Id": guestId }),
-        //   },
-        // }
+
         payload,
         {
           headers: {
@@ -59,13 +44,6 @@ export const addToCart = createAsyncThunk(
           },
         }
       );
-
-      // Only persist confirmed server state
-      // localStorage.removeItem("tempCart");
-      // if (isGuest) {
-      //   localStorage.setItem("guestCart", JSON.stringify(response.data));
-      // }
-      // Clear guest cart if user is authenticated
       if (!isGuest && guestItems.length > 0) {
         localStorage.removeItem("guestItems");
         localStorage.removeItem("guestId");
@@ -112,7 +90,6 @@ const CartSlice = createSlice({
       .addCase(addToCart.fulfilled, (state, action) => {
         console.log("Cart add SUCCESS", action.payload);
         state.status = "succeeded";
-        // state.cart = action.payload;
 
         // For new guest carts
         if (!state.cart.guestId) {
@@ -144,15 +121,6 @@ const CartSlice = createSlice({
         state.lastAction = "add";
 
         // Persist to localStorage
-        // if (!action.payload.userId) {
-        //   // Guest cart
-        //   localStorage.setItem("guestId", action.payload.guestId);
-        //   localStorage.setItem(
-        //     "guestItems",
-        //     JSON.stringify(action.payload.items)
-        //   );
-        // }
-        // localStorage.setItem("cart", JSON.stringify(action.payload));
         localStorage.setItem("cart", JSON.stringify(state.cart));
       })
       .addCase(addToCart.rejected, (state, action) => {

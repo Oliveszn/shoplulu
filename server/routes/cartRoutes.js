@@ -1,8 +1,11 @@
 const express = require("express");
 const {
-  addToCart,
+  addToUserCart,
   addToGuestCart,
   validateProducts,
+  fetchCartItems,
+  updateCartItemQty,
+  deleteCartItem,
 } = require("../controllers/cart_controller");
 const {
   authMiddleware,
@@ -15,6 +18,14 @@ const router = express.Router();
 router.post("/guest/add", validateProducts, addToGuestCart);
 
 // for auth users
-router.post("/user/add", authMiddleware, validateProducts, addToCart);
+router.post("/user/add", authMiddleware, validateProducts, addToUserCart);
+router.get("/user/get", authMiddleware, fetchCartItems);
+router.put(
+  "/user/update-cart",
+  authMiddleware,
+  validateProducts,
+  updateCartItemQty
+);
+router.delete("/user/delete", authMiddleware, deleteCartItem);
 
 module.exports = router;

@@ -129,8 +129,8 @@ const authMiddleware = async (req, res, next) => {
     }
 
     req.user = {
-      id: userId, // Standardized property name
-      username: decoded.username, // Add other needed properties
+      id: userId,
+      username: decoded.username,
       role: decoded.role,
     };
 

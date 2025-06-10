@@ -43,4 +43,12 @@ module.exports = {
 //   product_id UUID NOT NULL REFERENCES products(id) ON DELETE CASCADE,
 //   quantity INTEGER NOT NULL CHECK (quantity >= 1),
 //   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+
+// This will:
+// Create a unique constraint named unique_cart_product
+// Prevent the same product from being added multiple times to the same cart
+// Allow the same product to exist in different carts (different cart_ids)
+// ALTER TABLE cart_items
+// ADD CONSTRAINT unique_cart_product
+// UNIQUE (cart_id, product_id);
 // );
