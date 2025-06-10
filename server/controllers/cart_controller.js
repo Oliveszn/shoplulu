@@ -34,16 +34,18 @@ const validateProducts = async (req, res, next) => {
 };
 
 // For guests
+
 const guestCarts = new Map();
+
 const addToGuestCart = async (req, res) => {
   const { productId, quantity, guestId } = req.body;
 
   try {
-    const newGuestId =
+    const currentGuestId =
       guestId || `guest_${Date.now()}_${Math.random().toString(36).slice(2)}`;
 
     // Get or create guest cart
-    let cart = guestCarts.get(guestId) || { items: [] };
+    let cart = guestCarts.get(currentGuestId) || { items: [] };
 
     // Find existing item
     const existingItemIndex = cart.items.findIndex(
@@ -58,16 +60,21 @@ const addToGuestCart = async (req, res) => {
       cart.items.push({ productId, quantity });
     }
 
-    guestCarts.set(newGuestId, cart);
+    // Store cart with the correct guestId
+    guestCarts.set(currentGuestId, cart);
+
     return res.json({
-      guestId: newGuestId,
-      // items: [{ productId, quantity }],
+      success: true,
+      guestId: currentGuestId,
       items: cart.items,
       message: "Item added to guest cart",
     });
   } catch (error) {
     console.error("Guest cart error:", error);
-    return res.status(500).json({ error: "Failed to update guest cart" });
+    return res.status(500).json({
+      success: false,
+      error: "Failed to update guest cart",
+    });
   }
 };
 
@@ -141,7 +148,7 @@ const addToUserCart = async (req, res) => {
 const fetchCartItems = async (req, res) => {
   let client;
   try {
-    const userId = req.user?.id; // Get from authenticated user instead of params
+    const userId = req.user?.id;
 
     if (!userId) {
       return res.status(401).json({
@@ -196,10 +203,10 @@ const fetchCartItems = async (req, res) => {
       });
     }
 
-    // Filter out items where product doesn't exist (equivalent to validItems filter)
+    // Filter out items where product doesn't exist
     const validItems = result.rows.filter((row) => row.product_id && row.name);
 
-    // If we found invalid items, we should clean them up (equivalent to cart.save())
+    // If we found invalid items, we should clean them up
     if (validItems.length < result.rows.length) {
       const invalidItemIds = result.rows
         .filter((row) => !row.product_id || !row.name)
@@ -214,7 +221,6 @@ const fetchCartItems = async (req, res) => {
       }
     }
 
-    // Transform to match your MongoDB response format
     const populateCartItems = validItems.map((item) => ({
       productId: item.product_id,
       image: item.images?.[0] || null,
@@ -296,7 +302,7 @@ const updateCartItemQty = async (req, res) => {
       [quantity, cartId, productId]
     );
 
-    // 4. Get updated cart with product details (same as fetch function)
+    // 4. Get updated cart with product details
     const updatedCartResult = await client.query(
       `
       SELECT 
@@ -321,7 +327,6 @@ const updateCartItemQty = async (req, res) => {
 
     await client.query("COMMIT");
 
-    // 5. Transform response (same as fetch function)
     const firstRow = updatedCartResult.rows[0];
 
     if (!firstRow.cart_item_id) {
