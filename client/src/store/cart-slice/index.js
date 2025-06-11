@@ -1,9 +1,6 @@
 import axios from "axios";
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
-const generateGuestId = () =>
-  `guest_${Date.now()}_${Math.random().toString(36).slice(2)}`;
-
 const initialState = {
   cart: { items: [] },
   status: "idle",
@@ -11,53 +8,86 @@ const initialState = {
   lastAction: null,
 };
 
-export const addToCart = createAsyncThunk(
-  "cart/addToCart",
-  async ({ productId, quantity }, { getState, rejectWithValue }) => {
-    const { auth } = getState();
-    const isGuest = !auth.token;
-    const guestId = localStorage.getItem("guestId") || generateGuestId();
-    const guestItems = JSON.parse(localStorage.getItem("guestItems") || "[]");
-
+export const addToGuestCart = createAsyncThunk(
+  "cart/addToGuestCart",
+  async ({ productId, quantity, guestId }, thunkAPI) => {
     try {
-      const payload = {
-        productId,
-        quantity,
-        ...(isGuest && { guestId }),
-        ...(!isGuest &&
-          guestItems.length > 0 && {
-            guestItems,
-            guestId: localStorage.getItem("guestId"),
-          }),
-      };
-
       const response = await axios.post(
-        `${import.meta.env.VITE_API_URL}/api/cart/${
-          isGuest ? "guest" : "user"
-        }/add`,
-
-        payload,
+        `${import.meta.env.VITE_API_URL}/api/cart/guest/add`,
         {
-          headers: {
-            "Content-Type": "application/json",
-            ...(auth.token && { Authorization: `Bearer ${auth.token}` }),
-          },
+          productId,
+          quantity,
+          guestId,
         }
       );
-      if (!isGuest && guestItems.length > 0) {
-        localStorage.removeItem("guestItems");
-        localStorage.removeItem("guestId");
-      }
 
       return response.data;
     } catch (error) {
-      localStorage.removeItem("tempCart");
-      return rejectWithValue({
-        message: error.response?.data?.message || "Failed to add to cart",
+      console.error(error);
+      return thunkAPI.rejectWithValue(
+        error.response?.data || { message: "Something went wrong" }
+      );
+    }
+  }
+);
+
+export const addToUserCart = createAsyncThunk(
+  "cart/addToUserCart",
+  async ({ productId, quantity }, thunkAPI) => {
+    try {
+      const response = await axios.post(
+        `${import.meta.env.VITE_API_URL}/api/cart/user/add`,
+        {
+          productId,
+          quantity,
+        }
+      );
+
+      return response.data;
+    } catch (error) {
+      console.error(error);
+      return thunkAPI.rejectWithValue(
+        error.response?.data || { message: "Something went wrong" }
+      );
+    }
+  }
+);
+
+export const fetchCartItems = createAsyncThunk(
+  "cart/fetchCartItems",
+  async () => {
+    const response = await axios.get(
+      `${import.meta.env.VITE_API_URL}/api/cart/user/get`
+    );
+    return response.data;
+  }
+);
+
+export const updateCartQuantity = createAsyncThunk(
+  "cart/updateCartQuantity",
+  async ({ productId, quantity }) => {
+    const response = await axios.put(
+      `${import.meta.env.VITE_API_URL}/api/cart/user/update-cart`,
+      {
         productId,
         quantity,
-      });
-    }
+      }
+    );
+
+    return response.data;
+  }
+);
+
+export const deleteCartItem = createAsyncThunk(
+  "cart?deleteCartItem",
+  async ({ productId }) => {
+    const response = await axios.delete(
+      `${import.meta.env.VITE_API_URL}/api/cart/user/delete`,
+      {
+        data: { productId },
+      }
+    );
+    return response.data;
   }
 );
 
@@ -83,51 +113,83 @@ const CartSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(addToCart.pending, (state) => {
+      .addCase(addToGuestCart.pending, (state) => {
         console.log("Cart add PENDING");
         state.status = "loading";
       })
-      .addCase(addToCart.fulfilled, (state, action) => {
+      .addCase(addToGuestCart.fulfilled, (state, action) => {
         console.log("Cart add SUCCESS", action.payload);
         state.status = "succeeded";
-
-        // For new guest carts
-        if (!state.cart.guestId) {
-          state.cart = action.payload;
-        }
-        // For existing carts
-        else {
-          // Merge items while preserving existing quantities
-          const mergedItems = [...state.cart.items];
-
-          action.payload.items.forEach((newItem) => {
-            const existingIndex = mergedItems.findIndex(
-              (item) => item.productId === newItem.productId
-            );
-
-            if (existingIndex >= 0) {
-              mergedItems[existingIndex].quantity += newItem.quantity;
-            } else {
-              mergedItems.push(newItem);
-            }
-          });
-
-          state.cart = {
-            ...action.payload,
-            items: mergedItems,
-          };
-        }
-
+        state.cart = action.payload.data;
         state.lastAction = "add";
 
         // Persist to localStorage
         localStorage.setItem("cart", JSON.stringify(state.cart));
+
+        //  Save guestId if returned
+        if (action.payload.guestId) {
+          state.cart.guestId = action.payload.guestId;
+          localStorage.setItem("guestId", action.payload.guestId);
+        }
       })
-      .addCase(addToCart.rejected, (state, action) => {
+      .addCase(addToGuestCart.rejected, (state, action) => {
         console.error("Cart add FAILED", action.error);
         state.status = "failed";
         state.error = action.payload;
         state.lastAction = "add_failed";
+      })
+      .addCase(addToUserCart.pending, (state) => {
+        console.log("Cart add PENDING");
+        state.status = "loading";
+      })
+      .addCase(addToUserCart.fulfilled, (state, action) => {
+        console.log("Cart add SUCCESS", action.payload);
+        state.status = "succeeded";
+        state.cart = action.payload.data;
+        state.lastAction = "add";
+      })
+      .addCase(addToUserCart.rejected, (state) => {
+        console.error("Cart add FAILED", action.error);
+        state.status = "failed";
+        state.error = action.payload;
+        state.cart.items = [];
+        state.lastAction = "add_failed";
+      })
+      .addCase(fetchCartItems.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(fetchCartItems.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.cart = action.payload.data;
+      })
+      .addCase(fetchCartItems.rejected, (state) => {
+        state.status = "failed";
+        state.cart.items = [];
+        state.error = action.payload;
+      })
+      .addCase(updateCartQuantity.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(updateCartQuantity.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.cart = action.payload.data;
+      })
+      .addCase(updateCartQuantity.rejected, (state) => {
+        state.status = "failed";
+        state.cart.items = [];
+        state.error = action.payload;
+      })
+      .addCase(deleteCartItem.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(deleteCartItem.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.cart = action.payload.data;
+      })
+      .addCase(deleteCartItem.rejected, (state) => {
+        state.status = "failed";
+        state.cart.items = [];
+        state.error = action.payload;
       });
   },
 });
