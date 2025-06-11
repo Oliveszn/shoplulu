@@ -92,6 +92,94 @@ const addToGuestCart = async (req, res) => {
   }
 };
 
+const fetchGuestCart = async (req, res) => {
+  try {
+    const { guestId } = req.params;
+
+    if (!guestId) {
+      return res.status(400).json({
+        success: false,
+        message: "Guest ID is required",
+      });
+    }
+
+    // Get guest cart from memory
+    const guestCart = guestCarts.get(guestId);
+
+    if (!guestCart || !guestCart.items || guestCart.items.length === 0) {
+      return res.status(200).json({
+        success: true,
+        data: {
+          guestId: guestId,
+          items: [],
+        },
+        message: "Guest cart is empty",
+      });
+    }
+
+    // Get product details for each item in guest cart
+    const client = await db.connect();
+
+    try {
+      const productIds = guestCart.items.map((item) => item.productId);
+
+      if (productIds.length === 0) {
+        return res.status(200).json({
+          success: true,
+          data: {
+            guestId: guestId,
+            items: [],
+          },
+        });
+      }
+
+      // Create placeholders for the IN clause
+      const placeholders = productIds
+        .map((_, index) => `$${index + 1}`)
+        .join(",");
+
+      const productQuery = `
+        SELECT product_id, images, name, price
+        FROM products 
+        WHERE product_id IN (${placeholders})
+      `;
+
+      const productResult = await client.query(productQuery, productIds);
+
+      // Map guest cart items with product details
+      const populatedItems = guestCart.items.map((guestItem) => {
+        const product = productResult.rows.find(
+          (p) => p.product_id === guestItem.productId
+        );
+
+        return {
+          productId: guestItem.productId,
+          image: product?.images?.[0] || null,
+          name: product?.name || "Product not found",
+          price: product?.price || null,
+          quantity: guestItem.quantity,
+        };
+      });
+
+      res.status(200).json({
+        success: true,
+        data: {
+          guestId: guestId,
+          items: populatedItems,
+        },
+      });
+    } finally {
+      client.release();
+    }
+  } catch (error) {
+    console.error("Fetch guest cart error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch guest cart",
+    });
+  }
+};
+
 const autoMergeGuestCart = async (userId, guestId) => {
   let client;
   try {
@@ -546,4 +634,5 @@ module.exports = {
   updateCartItemQty,
   deleteCartItem,
   autoMergeGuestCart,
+  fetchGuestCart,
 };

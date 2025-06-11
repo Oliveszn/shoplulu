@@ -26,9 +26,16 @@ export const loginUser = createAsyncThunk(
 
   async (formData) => {
     try {
+      //the backend expects to receive guestId while log in
+      //so this is added to send guest id to the backend
+      const guestId = localStorage.getItem("guestId");
+      const updatedFormData = {
+        ...formData,
+        guestId: guestId || undefined,
+      };
       const response = await axios.post(
         `${import.meta.env.VITE_API_URL}/api/auth/login`,
-        formData,
+        updatedFormData,
         {
           withCredentials: true,
         }

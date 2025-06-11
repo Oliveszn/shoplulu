@@ -3,7 +3,7 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
 const initialState = {
   cart: { items: [] },
-  status: "idle",
+  status: "idle" | "loading" | "succeeded" | "failed",
   error: null,
   lastAction: null,
 };
@@ -53,11 +53,72 @@ export const addToUserCart = createAsyncThunk(
   }
 );
 
+export const addToCartUnified = createAsyncThunk(
+  "cart/addToCartUnified",
+  async ({ productId, quantity, userId, isAuthenticated }, thunkAPI) => {
+    try {
+      if (isAuthenticated) {
+        // User is authenticated - use user cart endpoint
+        const response = await axios.post(
+          `${import.meta.env.VITE_API_URL}/api/cart/user/add`,
+          {
+            productId,
+            quantity,
+          }
+        );
+        return { ...response.data, type: "user" };
+      } else {
+        // Get or generate guest ID
+        let guestId = localStorage.getItem("guestId");
+        if (!guestId) {
+          guestId = `guest_${Date.now()}_${Math.random()
+            .toString(36)
+            .slice(2)}`;
+        }
+
+        const response = await axios.post(
+          `${import.meta.env.VITE_API_URL}/api/cart/guest/add`,
+          {
+            productId,
+            quantity,
+            guestId,
+          }
+        );
+
+        return { ...response.data, type: "guest" };
+      }
+    } catch (error) {
+      console.error(error);
+      return thunkAPI.rejectWithValue(
+        error.response?.data || { message: "Something went wrong" }
+      );
+    }
+  }
+);
+
+export const fetchGuestCartItems = createAsyncThunk(
+  "cart/fetchGuestCartItems",
+  async (guestId, thunkAPI) => {
+    try {
+      const response = await axios.get(
+        `${import.meta.env.VITE_API_URL}/api/cart/guest/${guestId}`
+      );
+
+      return response.data; // assuming { success, data: { guestId, items } }
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data || { message: "Failed to fetch guest cart" }
+      );
+    }
+  }
+);
+
 export const fetchCartItems = createAsyncThunk(
   "cart/fetchCartItems",
   async () => {
     const response = await axios.get(
-      `${import.meta.env.VITE_API_URL}/api/cart/user/get`
+      `${import.meta.env.VITE_API_URL}/api/cart/user/get`,
+      { withCredentials: true }
     );
     return response.data;
   }
@@ -148,12 +209,47 @@ const CartSlice = createSlice({
         state.cart = action.payload.data;
         state.lastAction = "add";
       })
-      .addCase(addToUserCart.rejected, (state) => {
+      .addCase(addToUserCart.rejected, (state, action) => {
         console.error("Cart add FAILED", action.error);
         state.status = "failed";
         state.error = action.payload;
         state.cart.items = [];
         state.lastAction = "add_failed";
+      })
+      .addCase(addToCartUnified.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(addToCartUnified.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.cart = action.payload;
+
+        if (action.payload.type === "guest" && action.payload.guestId) {
+          state.cart.guestId = action.payload.guestId;
+          localStorage.setItem("guestId", action.payload.guestId);
+        }
+
+        state.lastAction = "add";
+      })
+      .addCase(addToCartUnified.rejected, (state, action) => {
+        console.error("Cart add FAILED", action.error);
+        state.status = "failed";
+        state.error = action.payload;
+        state.cart.items = [];
+        state.lastAction = "add_failed";
+      })
+      .addCase(fetchGuestCartItems.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(fetchGuestCartItems.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.cart = action.payload.data;
+        state.lastAction = "fetched_guest_cart";
+      })
+      .addCase(fetchGuestCartItems.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload;
+        state.cart.items = [];
+        state.lastAction = "fetch_guest_cart_failed";
       })
       .addCase(fetchCartItems.pending, (state) => {
         state.status = "loading";
@@ -162,7 +258,7 @@ const CartSlice = createSlice({
         state.status = "succeeded";
         state.cart = action.payload.data;
       })
-      .addCase(fetchCartItems.rejected, (state) => {
+      .addCase(fetchCartItems.rejected, (state, action) => {
         state.status = "failed";
         state.cart.items = [];
         state.error = action.payload;
@@ -201,7 +297,5 @@ export const { resetCartStatus, loadCartFromStorage, clearCart } =
 export const selectCartItems = (state) => state.cart.cart.items;
 export const selectCartStatus = (state) => state.cart.status;
 export const selectCartError = (state) => state.cart.error;
-export const selectCartTotalItems = (state) =>
-  state.cart.cart.items.reduce((total, item) => total + item.quantity, 0);
 
 export default CartSlice.reducer;

@@ -1,21 +1,18 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import CurrencyDropdown from "../CurrencyDropdown";
 import MuiDrawer from "../../ui/MuiDrawer";
 import MobileNav from "./MobileNav";
 import { subCategoriesByCategory } from "../../../config";
+import CartWrapper from "../../cart/CartWrapper";
+import { useSelector } from "react-redux";
 
 const Navbar = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isShopHovered, setIsShopHovered] = useState(false);
   const [isMobileNav, setIsMobileNav] = useState(false);
+  const { cart, status } = useSelector((state) => state.cart);
   let links = [
-    { name: "SHOP", link: "/shop" },
-    { name: "ABOUT", link: "/about" },
-    { name: "OUR STORE", link: "/store" },
-  ];
-
-  let secLinks = [
     { name: "SHOP", link: "/shop" },
     { name: "ABOUT", link: "/about" },
     { name: "OUR STORE", link: "/store" },
@@ -241,8 +238,24 @@ const Navbar = () => {
         onClose={() => setIsDrawerOpen(false)}
         anchor="right"
       >
-        <div className="flex flex-col items-center justify-center">
-          <h1 className="uppercase">No products in the cart.</h1>
+        <div className="p-4 w-[350px]">
+          {status === "loading" ? (
+            <div className="flex justify-center items-center h-full">
+              <span className="loader" />{" "}
+              {/* You can replace with a spinner component */}
+            </div>
+          ) : cart?.items?.length > 0 ? (
+            <>
+              <h2 className="text-lg font-semibold mb-4">Your Cart</h2>
+              <CartWrapper cart={cart} />
+            </>
+          ) : (
+            <div className="flex flex-col items-center justify-center">
+              <h1 className="uppercase text-center text-sm">
+                No products in the cart.
+              </h1>
+            </div>
+          )}
         </div>
       </MuiDrawer>
 

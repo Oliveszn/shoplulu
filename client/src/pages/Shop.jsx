@@ -7,8 +7,10 @@ import {
 import Shoptile from "../components/shop-view/Shoptile";
 import { useNavigate } from "react-router-dom";
 import {
-  addToCart,
-  loadCartFromStorage,
+  addToCartUnified,
+  addToUserCart,
+  fetchCartItems,
+  fetchGuestCartItems,
   selectCartItems,
   selectCartStatus,
 } from "../store/cart-slice";
@@ -34,38 +36,50 @@ const Shop = () => {
     }
   };
 
-  const handleAddToCart = (productId, quantity) => {
-    console.log("Dispatching:", productId, quantity);
-    dispatch(addToCart({ productId, quantity })).then((result) => {
-      if (addToCart.fulfilled.match(result)) {
-        console.log("Success!", result.payload);
-      } else {
-        console.log("Failed!", result.error);
+  // const handleAddToCart = (productId, quantity) => {};
+  const handleAddtoCart = (getCurrentProductId, getTotalStock) => {
+    // Stock check logic (same as above)
+    let getCartItems = cart.items || [];
+
+    if (getCartItems.length) {
+      const indexOfCurrentItem = getCartItems.findIndex(
+        (item) => item.productId === getCurrentProductId
+      );
+      if (indexOfCurrentItem > -1) {
+        const getQuantity = getCartItems[indexOfCurrentItem].quantity;
+        if (getQuantity + 1 > getTotalStock) {
+          console.log(
+            `Only ${getQuantity} quantity can be added for this item`
+          );
+
+          return;
+        }
+      }
+    }
+
+    // Single dispatch that handles both user and guest
+    dispatch(
+      addToCartUnified({
+        productId: getCurrentProductId,
+        quantity: 1,
+        userId: user?.id,
+        isAuthenticated: !!user?.id,
+      })
+    ).then((data) => {
+      if (data?.payload?.success) {
+        // Refresh cart items based on user type
+        if (user?.id) {
+          dispatch(fetchCartItems(user?.id));
+        } else {
+          // Handle guest cart refresh if needed
+          const guestId = localStorage.getItem("guestId");
+          dispatch(fetchGuestCartItems(guestId));
+        }
+
+        console.log("product added");
       }
     });
   };
-
-  // Add this useEffect
-  useEffect(() => {
-    // Check if we have a guest ID in localStorage
-    const guestId = localStorage.getItem("guestId");
-
-    if (!user && !guestId) {
-      // If no user is logged in AND no guest ID exists
-      const newGuestId = `guest_${Date.now()}_${Math.random()
-        .toString(36)
-        .slice(2)}`;
-      localStorage.setItem("guestId", newGuestId);
-      console.log("Generated new guest ID:", newGuestId);
-    }
-
-    // Load cart from localStorage
-    dispatch(loadCartFromStorage());
-  }, [dispatch, user]);
-
-  useEffect(() => {
-    dispatch(loadCartFromStorage());
-  }, [dispatch]);
 
   useEffect(() => {
     dispatch(fetchAllProducts());
@@ -79,7 +93,7 @@ const Shop = () => {
                 product={productItem}
                 key={productItem.product_id || i}
                 handleGetProductDetails={handleGetProductDetails}
-                handleAddtoCart={handleAddToCart}
+                handleAddtoCart={handleAddtoCart}
               />
             ))
           : null}

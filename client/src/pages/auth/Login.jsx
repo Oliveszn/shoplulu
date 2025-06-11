@@ -21,6 +21,7 @@ const AuthLogin = () => {
     dispatch(loginUser(formData)).then((data) => {
       if (data?.payload?.success) {
         console.log("yes");
+        localStorage.removeItem("guestId");
       } else {
         console.log("no");
       }

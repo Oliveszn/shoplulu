@@ -16,6 +16,7 @@ import AdminLayout from "./components/admin-view/AdminLayout";
 import { checkAuth } from "./store/auth-slice";
 import AdminProducts from "./pages/admin-view/Products";
 import ProductDetails from "./pages/ProductDetails";
+import { fetchCartItems, fetchGuestCartItems } from "./store/cart-slice";
 
 function App() {
   const location = useLocation();
@@ -28,6 +29,19 @@ function App() {
   useEffect(() => {
     dispatch(checkAuth());
   }, [dispatch]);
+
+  useEffect(() => {
+    if (user?.id) {
+      // Authenticated user
+      dispatch(fetchCartItems(user.id));
+    } else {
+      // Guest user
+      const guestId = localStorage.getItem("guestId");
+      if (guestId) {
+        dispatch(fetchGuestCartItems(guestId));
+      }
+    }
+  }, [user?.id, dispatch]);
 
   return (
     <>
