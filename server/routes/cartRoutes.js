@@ -7,10 +7,7 @@ const {
   updateCartItemQty,
   deleteCartItem,
 } = require("../controllers/cart_controller");
-const {
-  authMiddleware,
-  flexibleAuth,
-} = require("../controllers/auth_controller");
+const { authMiddleware } = require("../controllers/auth_controller");
 
 const router = express.Router();
 

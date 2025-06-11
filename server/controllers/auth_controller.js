@@ -1,6 +1,7 @@
 const bcrypt = require("bcryptjs");
 const User = require("../models/Users");
 const jwt = require("jsonwebtoken");
+const { autoMergeGuestCart } = require("./cart_controller");
 
 //register a user
 const registerUser = async (req, res) => {
@@ -76,6 +77,12 @@ const loginUser = async (req, res) => {
       process.env.JWT_SECRET,
       { expiresIn: "1d" }
     );
+
+    // Auto-merge guest cart if guestId provided
+    const { guestId } = req.body;
+    if (guestId) {
+      await autoMergeGuestCart(user.id, guestId);
+    }
 
     res
       .cookie("token", token, {
@@ -155,24 +162,9 @@ const authMiddleware = async (req, res, next) => {
   }
 };
 
-const flexibleAuth = (req, res, next) => {
-  const token = req.header("Authorization")?.replace("Bearer ", "");
-
-  if (token) {
-    try {
-      req.user = jwt.verify(token, process.env.JWT_SECRET);
-    } catch (err) {
-      // Don't block if token is invalid - treat as guest
-      console.warn("Invalid token - proceeding as guest");
-    }
-  }
-  next();
-};
-
 module.exports = {
   registerUser,
   loginUser,
   logout,
   authMiddleware,
-  flexibleAuth,
 };

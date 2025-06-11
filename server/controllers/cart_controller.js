@@ -34,8 +34,23 @@ const validateProducts = async (req, res, next) => {
 };
 
 // For guests
-
 const guestCarts = new Map();
+// Cleanup function to clear old guest cart after 24 hours
+const cleanupGuestCarts = () => {
+  const now = Date.now();
+  const maxAge = 24 * 60 * 60 * 1000; // 24 hours
+
+  for (const [guestId, cart] of guestCarts.entries()) {
+    const cartAge = now - parseInt(guestId.split("_")[1]);
+    if (cartAge > maxAge) {
+      guestCarts.delete(guestId);
+    }
+  }
+  console.log("Guest carts cleaned up");
+};
+
+// this makes it run evry hour
+setInterval(cleanupGuestCarts, 60 * 60 * 1000);
 
 const addToGuestCart = async (req, res) => {
   const { productId, quantity, guestId } = req.body;
@@ -53,10 +68,9 @@ const addToGuestCart = async (req, res) => {
     );
 
     if (existingItemIndex >= 0) {
-      // Update quantity if exists
+      // Update the quantity if exists else add a newone
       cart.items[existingItemIndex].quantity += quantity;
     } else {
-      // Add new item
       cart.items.push({ productId, quantity });
     }
 
@@ -75,6 +89,59 @@ const addToGuestCart = async (req, res) => {
       success: false,
       error: "Failed to update guest cart",
     });
+  }
+};
+
+const autoMergeGuestCart = async (userId, guestId) => {
+  let client;
+  try {
+    const guestCart = guestCarts.get(guestId);
+
+    if (!guestCart || !guestCart.items || guestCart.items.length === 0) {
+      return { success: true, message: "No guest cart to merge" };
+    }
+
+    client = await db.connect();
+    await client.query("BEGIN");
+
+    // Get or create user's cart
+    const cartRes = await client.query(
+      `INSERT INTO carts (user_id)
+       VALUES ($1)
+       ON CONFLICT (user_id) DO UPDATE SET updated_at = NOW()
+       RETURNING cart_id`,
+      [userId]
+    );
+
+    const cartId = cartRes.rows[0].cart_id;
+
+    // Merge guest cart items
+    for (const guestItem of guestCart.items) {
+      await client.query(
+        `INSERT INTO cart_items (cart_id, product_id, quantity)
+         VALUES ($1, $2, $3)
+         ON CONFLICT (cart_id, product_id) 
+         DO UPDATE SET quantity = cart_items.quantity + EXCLUDED.quantity`,
+        [cartId, guestItem.productId, guestItem.quantity]
+      );
+    }
+
+    await client.query("COMMIT");
+
+    // Clear guest cart
+    guestCarts.delete(guestId);
+
+    return { success: true, message: "Guest cart merged successfully" };
+  } catch (error) {
+    if (client) {
+      await client.query("ROLLBACK");
+    }
+    console.error("Auto-merge cart error:", error);
+    return { success: false, message: "Failed to merge guest cart" };
+  } finally {
+    if (client) {
+      client.release();
+    }
   }
 };
 
@@ -376,7 +443,6 @@ const updateCartItemQty = async (req, res) => {
   }
 };
 
-/////////////
 const deleteCartItem = async (req, res) => {
   let client;
 
@@ -479,4 +545,5 @@ module.exports = {
   fetchCartItems,
   updateCartItemQty,
   deleteCartItem,
+  autoMergeGuestCart,
 };
