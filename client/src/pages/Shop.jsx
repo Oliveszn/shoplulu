@@ -8,7 +8,6 @@ import Shoptile from "../components/shop-view/Shoptile";
 import { useNavigate } from "react-router-dom";
 import {
   addToCartUnified,
-  addToUserCart,
   fetchCartItems,
   fetchGuestCartItems,
   selectCartItems,

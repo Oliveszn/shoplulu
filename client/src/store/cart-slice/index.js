@@ -8,50 +8,50 @@ const initialState = {
   lastAction: null,
 };
 
-export const addToGuestCart = createAsyncThunk(
-  "cart/addToGuestCart",
-  async ({ productId, quantity, guestId }, thunkAPI) => {
-    try {
-      const response = await axios.post(
-        `${import.meta.env.VITE_API_URL}/api/cart/guest/add`,
-        {
-          productId,
-          quantity,
-          guestId,
-        }
-      );
+// export const addToGuestCart = createAsyncThunk(
+//   "cart/addToGuestCart",
+//   async ({ productId, quantity, guestId }, thunkAPI) => {
+//     try {
+//       const response = await axios.post(
+//         `${import.meta.env.VITE_API_URL}/api/cart/guest/add`,
+//         {
+//           productId,
+//           quantity,
+//           guestId,
+//         }
+//       );
 
-      return response.data;
-    } catch (error) {
-      console.error(error);
-      return thunkAPI.rejectWithValue(
-        error.response?.data || { message: "Something went wrong" }
-      );
-    }
-  }
-);
+//       return response.data;
+//     } catch (error) {
+//       console.error(error);
+//       return thunkAPI.rejectWithValue(
+//         error.response?.data || { message: "Something went wrong" }
+//       );
+//     }
+//   }
+// );
 
-export const addToUserCart = createAsyncThunk(
-  "cart/addToUserCart",
-  async ({ productId, quantity }, thunkAPI) => {
-    try {
-      const response = await axios.post(
-        `${import.meta.env.VITE_API_URL}/api/cart/user/add`,
-        {
-          productId,
-          quantity,
-        }
-      );
+// export const addToUserCart = createAsyncThunk(
+//   "cart/addToUserCart",
+//   async ({ productId, quantity }, thunkAPI) => {
+//     try {
+//       const response = await axios.post(
+//         `${import.meta.env.VITE_API_URL}/api/cart/user/add`,
+//         {
+//           productId,
+//           quantity,
+//         }
+//       );
 
-      return response.data;
-    } catch (error) {
-      console.error(error);
-      return thunkAPI.rejectWithValue(
-        error.response?.data || { message: "Something went wrong" }
-      );
-    }
-  }
-);
+//       return response.data;
+//     } catch (error) {
+//       console.error(error);
+//       return thunkAPI.rejectWithValue(
+//         error.response?.data || { message: "Something went wrong" }
+//       );
+//     }
+//   }
+// );
 
 export const addToCartUnified = createAsyncThunk(
   "cart/addToCartUnified",
@@ -64,6 +64,9 @@ export const addToCartUnified = createAsyncThunk(
           {
             productId,
             quantity,
+          },
+          {
+            withCredentials: true,
           }
         );
         return { ...response.data, type: "user" };
@@ -104,7 +107,7 @@ export const fetchGuestCartItems = createAsyncThunk(
         `${import.meta.env.VITE_API_URL}/api/cart/guest/${guestId}`
       );
 
-      return response.data; // assuming { success, data: { guestId, items } }
+      return response.data;
     } catch (error) {
       return thunkAPI.rejectWithValue(
         error.response?.data || { message: "Failed to fetch guest cart" }
@@ -132,6 +135,9 @@ export const updateCartQuantity = createAsyncThunk(
       {
         productId,
         quantity,
+      },
+      {
+        withCredentials: true,
       }
     );
 
@@ -140,12 +146,13 @@ export const updateCartQuantity = createAsyncThunk(
 );
 
 export const deleteCartItem = createAsyncThunk(
-  "cart?deleteCartItem",
+  "cart/deleteCartItem",
   async ({ productId }) => {
     const response = await axios.delete(
       `${import.meta.env.VITE_API_URL}/api/cart/user/delete`,
       {
         data: { productId },
+        withCredentials: true,
       }
     );
     return response.data;
@@ -174,48 +181,48 @@ const CartSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(addToGuestCart.pending, (state) => {
-        console.log("Cart add PENDING");
-        state.status = "loading";
-      })
-      .addCase(addToGuestCart.fulfilled, (state, action) => {
-        console.log("Cart add SUCCESS", action.payload);
-        state.status = "succeeded";
-        state.cart = action.payload.data;
-        state.lastAction = "add";
+      // .addCase(addToGuestCart.pending, (state) => {
+      //   console.log("Cart add PENDING");
+      //   state.status = "loading";
+      // })
+      // .addCase(addToGuestCart.fulfilled, (state, action) => {
+      //   console.log("Cart add SUCCESS", action.payload);
+      //   state.status = "succeeded";
+      //   state.cart = action.payload.data;
+      //   state.lastAction = "add";
 
-        // Persist to localStorage
-        localStorage.setItem("cart", JSON.stringify(state.cart));
+      //   // Persist to localStorage
+      //   localStorage.setItem("cart", JSON.stringify(state.cart));
 
-        //  Save guestId if returned
-        if (action.payload.guestId) {
-          state.cart.guestId = action.payload.guestId;
-          localStorage.setItem("guestId", action.payload.guestId);
-        }
-      })
-      .addCase(addToGuestCart.rejected, (state, action) => {
-        console.error("Cart add FAILED", action.error);
-        state.status = "failed";
-        state.error = action.payload;
-        state.lastAction = "add_failed";
-      })
-      .addCase(addToUserCart.pending, (state) => {
-        console.log("Cart add PENDING");
-        state.status = "loading";
-      })
-      .addCase(addToUserCart.fulfilled, (state, action) => {
-        console.log("Cart add SUCCESS", action.payload);
-        state.status = "succeeded";
-        state.cart = action.payload.data;
-        state.lastAction = "add";
-      })
-      .addCase(addToUserCart.rejected, (state, action) => {
-        console.error("Cart add FAILED", action.error);
-        state.status = "failed";
-        state.error = action.payload;
-        state.cart.items = [];
-        state.lastAction = "add_failed";
-      })
+      //   //  Save guestId if returned
+      //   if (action.payload.guestId) {
+      //     state.cart.guestId = action.payload.guestId;
+      //     localStorage.setItem("guestId", action.payload.guestId);
+      //   }
+      // })
+      // .addCase(addToGuestCart.rejected, (state, action) => {
+      //   console.error("Cart add FAILED", action.error);
+      //   state.status = "failed";
+      //   state.error = action.payload;
+      //   state.lastAction = "add_failed";
+      // })
+      // .addCase(addToUserCart.pending, (state) => {
+      //   console.log("Cart add PENDING");
+      //   state.status = "loading";
+      // })
+      // .addCase(addToUserCart.fulfilled, (state, action) => {
+      //   console.log("Cart add SUCCESS", action.payload);
+      //   state.status = "succeeded";
+      //   state.cart = action.payload.data;
+      //   state.lastAction = "add";
+      // })
+      // .addCase(addToUserCart.rejected, (state, action) => {
+      //   console.error("Cart add FAILED", action.error);
+      //   state.status = "failed";
+      //   state.error = action.payload;
+      //   state.cart.items = [];
+      //   state.lastAction = "add_failed";
+      // })
       .addCase(addToCartUnified.pending, (state) => {
         state.status = "loading";
       })
@@ -248,7 +255,6 @@ const CartSlice = createSlice({
       .addCase(fetchGuestCartItems.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.payload;
-        state.cart.items = [];
         state.lastAction = "fetch_guest_cart_failed";
       })
       .addCase(fetchCartItems.pending, (state) => {
@@ -260,7 +266,6 @@ const CartSlice = createSlice({
       })
       .addCase(fetchCartItems.rejected, (state, action) => {
         state.status = "failed";
-        state.cart.items = [];
         state.error = action.payload;
       })
       .addCase(updateCartQuantity.pending, (state) => {
@@ -270,9 +275,8 @@ const CartSlice = createSlice({
         state.status = "succeeded";
         state.cart = action.payload.data;
       })
-      .addCase(updateCartQuantity.rejected, (state) => {
+      .addCase(updateCartQuantity.rejected, (state, action) => {
         state.status = "failed";
-        state.cart.items = [];
         state.error = action.payload;
       })
       .addCase(deleteCartItem.pending, (state) => {
@@ -281,10 +285,11 @@ const CartSlice = createSlice({
       .addCase(deleteCartItem.fulfilled, (state, action) => {
         state.status = "succeeded";
         state.cart = action.payload.data;
+        console.log("Delete fulfilled payload:", action.payload);
+        console.log("Delete fulfilled payload:", action.payload.data);
       })
-      .addCase(deleteCartItem.rejected, (state) => {
+      .addCase(deleteCartItem.rejected, (state, action) => {
         state.status = "failed";
-        state.cart.items = [];
         state.error = action.payload;
       });
   },

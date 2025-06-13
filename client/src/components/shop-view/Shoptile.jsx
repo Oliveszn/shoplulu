@@ -64,7 +64,6 @@ const Shoptile = ({ product, handleGetProductDetails, handleAddtoCart }) => {
         </div>
 
         <button
-          // onClick={() => handleAddtoCart(product.product_id, product.stock, 2)}
           onClick={() => handleAddtoCart(product.product_id, product.stock)}
           disabled={status === "loading"}
           className="w-full"

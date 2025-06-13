@@ -237,10 +237,11 @@ const Navbar = () => {
         isOpen={isDrawerOpen}
         onClose={() => setIsDrawerOpen(false)}
         anchor="right"
+        width="30vw"
       >
-        <div className="p-4 w-[350px]">
+        <div className="">
           {status === "loading" ? (
-            <div className="flex justify-center items-center h-full">
+            <div className="flex justify-center items-center">
               <span className="loader" />{" "}
               {/* You can replace with a spinner component */}
             </div>
