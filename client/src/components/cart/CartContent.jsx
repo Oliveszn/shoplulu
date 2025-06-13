@@ -1,7 +1,9 @@
-import React from "react";
+import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Minus, Plus, Trash } from "lucide-react";
 import { deleteCartItem, updateCartQuantity } from "../../store/cart-slice";
+import MuiSnackbar from "../ui/MuiSnackbar";
+import { showSnackbar } from "../../store/ui/snackbarslice";
 
 const CartContent = ({ cart: item }) => {
   const { cart } = useSelector((state) => state.cart);
@@ -12,6 +14,12 @@ const CartContent = ({ cart: item }) => {
     dispatch(deleteCartItem({ productId: item?.productId })).then((data) => {
       if (data?.payload?.success) {
         console.log("Cart item is deleted successfully");
+        dispatch(
+          showSnackbar({
+            message: "Item deleted from cart!",
+            anchorOrigin: { vertical: "top", horizontal: "center" },
+          })
+        );
       }
     });
   };
@@ -19,6 +27,7 @@ const CartContent = ({ cart: item }) => {
   const handleUpdateQuantity = (getItem, typeOfAction) => {
     if (typeOfAction == "plus") {
       let getItems = cart.items || [];
+      console.log(getItems);
 
       if (getItems.length) {
         const indexOfCurrentCartItem = getItems.findIndex(
@@ -28,17 +37,23 @@ const CartContent = ({ cart: item }) => {
         const getCurrentProductIndex = productList.findIndex(
           (product) => String(product.product_id) === String(getItem?.productId)
         );
-        console.log(indexOfCurrentCartItem, getCurrentProductIndex);
+        // console.log(indexOfCurrentCartItem, getCurrentProductIndex);
 
         const getTotalStock = productList[getCurrentProductIndex].stock;
 
-        console.log(getCurrentProductIndex, getTotalStock, "getTotalStock");
+        // console.log(getCurrentProductIndex, getTotalStock, "getTotalStock");
 
         if (indexOfCurrentCartItem > -1) {
           const getQuantity = getItems[indexOfCurrentCartItem].quantity;
           if (getQuantity + 1 > getTotalStock) {
             console.log(
               `Only ${getQuantity} quantity can be added for this item`
+            );
+            dispatch(
+              showSnackbar({
+                message: `Only ${getQuantity} quantity can be added for this item`,
+                anchorOrigin: { vertical: "top", horizontal: "center" },
+              })
             );
 
             return;

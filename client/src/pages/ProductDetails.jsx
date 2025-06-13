@@ -1,8 +1,16 @@
-import React from "react";
-import { useSelector } from "react-redux";
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useParams } from "react-router-dom";
+import { fetchProductDetails } from "../store/admin/products-slice";
 
 const ProductDetails = () => {
+  const { id } = useParams();
   const { productDetails } = useSelector((state) => state.adminProducts);
+  const dispatch = useDispatch();
+  useEffect(() => {
+    if (id) dispatch(fetchProductDetails(id));
+  }, [id, dispatch]);
+
   if (!productDetails) {
     return <div>Loading product or product not found...</div>;
   }

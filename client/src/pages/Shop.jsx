@@ -14,6 +14,7 @@ import {
   selectCartStatus,
 } from "../store/cart-slice";
 import ProductDetails from "./ProductDetails";
+import { showSnackbar } from "../store/ui/snackbarslice";
 
 const Shop = () => {
   const { productList } = useSelector((state) => state.adminProducts);
@@ -35,20 +36,23 @@ const Shop = () => {
     }
   };
 
-  // const handleAddToCart = (productId, quantity) => {};
   const handleAddtoCart = (getCurrentProductId, getTotalStock) => {
-    // Stock check logic (same as above)
+    // Stock check logic
     let getCartItems = cart.items || [];
 
     if (getCartItems.length) {
       const indexOfCurrentItem = getCartItems.findIndex(
-        (item) => item.productId === getCurrentProductId
+        (item) => String(item.productId) === String(getCurrentProductId)
       );
+
       if (indexOfCurrentItem > -1) {
         const getQuantity = getCartItems[indexOfCurrentItem].quantity;
         if (getQuantity + 1 > getTotalStock) {
-          console.log(
-            `Only ${getQuantity} quantity can be added for this item`
+          dispatch(
+            showSnackbar({
+              message: `You can only add ${getTotalStock} of this item in total. You already have ${getQuantity}.`,
+              anchorOrigin: { vertical: "top", horizontal: "center" },
+            })
           );
 
           return;
@@ -75,7 +79,12 @@ const Shop = () => {
           dispatch(fetchGuestCartItems(guestId));
         }
 
-        console.log("product added");
+        dispatch(
+          showSnackbar({
+            message: "Item added to cart!",
+            anchorOrigin: { vertical: "top", horizontal: "center" },
+          })
+        );
       }
     });
   };
@@ -91,14 +100,12 @@ const Shop = () => {
               <Shoptile
                 product={productItem}
                 key={productItem.product_id || i}
-                handleGetProductDetails={handleGetProductDetails}
+                // handleGetProductDetails={handleGetProductDetails}
                 handleAddtoCart={handleAddtoCart}
               />
             ))
           : null}
       </div>
-
-      {/* <ProductDetails handleAddtoCart={handleAddtoCart}/> */}
     </div>
   );
 };

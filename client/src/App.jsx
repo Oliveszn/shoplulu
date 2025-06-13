@@ -17,6 +17,7 @@ import { checkAuth } from "./store/auth-slice";
 import AdminProducts from "./pages/admin-view/Products";
 import ProductDetails from "./pages/ProductDetails";
 import { fetchCartItems, fetchGuestCartItems } from "./store/cart-slice";
+import MuiSnackbar from "./components/ui/MuiSnackbar";
 
 function App() {
   const location = useLocation();
@@ -46,13 +47,14 @@ function App() {
   return (
     <>
       <Navbar />
+      <MuiSnackbar />
 
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
         <Route path="/shop" element={<Shop />} />
         <Route path="/store" element={<Store />} />
-        <Route path="/product" element={<ProductDetails />} />
+        <Route path="/product/:slug" element={<ProductDetails />} />
 
         <Route
           path="/auth"
