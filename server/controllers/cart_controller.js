@@ -149,7 +149,7 @@ const fetchGuestCart = async (req, res) => {
       // Map guest cart items with product details
       const populatedItems = guestCart.items.map((guestItem) => {
         const product = productResult.rows.find(
-          (p) => p.product_id === guestItem.productId
+          (p) => String(p.product_id) === String(guestItem.productId)
         );
 
         return {
@@ -180,6 +180,204 @@ const fetchGuestCart = async (req, res) => {
   }
 };
 
+const updateGuestCartItemQty = async (req, res) => {
+  try {
+    const { productId, quantity, guestId } = req.body;
+
+    if (!guestId) {
+      return res.status(400).json({
+        success: false,
+        message: "Guest ID is required",
+      });
+    }
+
+    // Get guest cart from memory
+    const guestCart = guestCarts.get(guestId);
+
+    if (!guestCart || !guestCart.items) {
+      return res.status(404).json({
+        success: false,
+        message: "Guest cart not found",
+      });
+    }
+
+    // Find the item to update
+    const itemIndex = guestCart.items.findIndex(
+      (item) => item.productId === productId
+    );
+
+    if (itemIndex === -1) {
+      return res.status(404).json({
+        success: false,
+        message: "Cart item not found",
+      });
+    }
+
+    // Update quantity (or remove if quantity is 0)
+    if (quantity <= 0) {
+      guestCart.items.splice(itemIndex, 1);
+    } else {
+      guestCart.items[itemIndex].quantity = quantity;
+    }
+
+    // Update the cart in memory
+    guestCarts.set(guestId, guestCart);
+
+    // Get product details for response (similar to fetchGuestCart)
+    let populatedItems = [];
+    if (guestCart.items.length > 0) {
+      const client = await db.connect();
+
+      try {
+        const productIds = guestCart.items.map((item) => item.productId);
+        const placeholders = productIds
+          .map((_, index) => `$${index + 1}`)
+          .join(",");
+
+        const productQuery = `
+          SELECT product_id, images, name, price
+          FROM products 
+          WHERE product_id IN (${placeholders})
+        `;
+
+        const productResult = await client.query(productQuery, productIds);
+
+        populatedItems = guestCart.items.map((guestItem) => {
+          const product = productResult.rows.find(
+            (p) => String(p.product_id) === String(guestItem.productId)
+          );
+
+          return {
+            productId: guestItem.productId,
+            image: product?.images?.[0] || null,
+            name: product?.name || "Product not found",
+            price: product?.price || null,
+            quantity: guestItem.quantity,
+          };
+        });
+      } finally {
+        client.release();
+      }
+    }
+
+    res.status(200).json({
+      success: true,
+      data: {
+        guestId: guestId,
+        items: populatedItems,
+      },
+      message: "Cart item updated successfully",
+    });
+  } catch (error) {
+    console.error("Update guest cart error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error updating guest cart item",
+    });
+  }
+};
+
+const deleteGuestCartItem = async (req, res) => {
+  try {
+    const { productId, guestId } = req.body;
+
+    if (!guestId) {
+      return res.status(400).json({
+        success: false,
+        message: "Guest ID is required",
+      });
+    }
+
+    if (!productId) {
+      return res.status(400).json({
+        success: false,
+        message: "Product ID is required",
+      });
+    }
+
+    // Get guest cart from memory
+    const guestCart = guestCarts.get(guestId);
+
+    if (!guestCart || !guestCart.items) {
+      return res.status(404).json({
+        success: false,
+        message: "Guest cart not found",
+      });
+    }
+
+    // Find and remove the item
+    const itemIndex = guestCart.items.findIndex(
+      (item) => item.productId === productId
+    );
+
+    if (itemIndex === -1) {
+      return res.status(404).json({
+        success: false,
+        message: "Cart item not found",
+      });
+    }
+
+    // Remove the item
+    guestCart.items.splice(itemIndex, 1);
+
+    // Update the cart in memory
+    guestCarts.set(guestId, guestCart);
+
+    // Get product details for remaining items (similar to fetchGuestCart)
+    let populatedItems = [];
+    if (guestCart.items.length > 0) {
+      const client = await db.connect();
+
+      try {
+        const productIds = guestCart.items.map((item) => item.productId);
+        const placeholders = productIds
+          .map((_, index) => `$${index + 1}`)
+          .join(",");
+
+        const productQuery = `
+          SELECT product_id, images, name, price
+          FROM products 
+          WHERE product_id IN (${placeholders})
+        `;
+
+        const productResult = await client.query(productQuery, productIds);
+
+        populatedItems = guestCart.items.map((guestItem) => {
+          const product = productResult.rows.find(
+            (p) => String(p.product_id) === String(guestItem.productId)
+          );
+
+          return {
+            productId: guestItem.productId,
+            image: product?.images?.[0] || null,
+            name: product?.name || "Product not found",
+            price: product?.price || null,
+            quantity: guestItem.quantity,
+          };
+        });
+      } finally {
+        client.release();
+      }
+    }
+
+    res.status(200).json({
+      success: true,
+      data: {
+        guestId: guestId,
+        items: populatedItems,
+      },
+      message: "Cart item deleted successfully",
+    });
+  } catch (error) {
+    console.error("Delete guest cart item error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error deleting guest cart item",
+    });
+  }
+};
+
+//function to merge guest to user on signup
 const autoMergeGuestCart = async (userId, guestId) => {
   let client;
   try {
@@ -233,6 +431,7 @@ const autoMergeGuestCart = async (userId, guestId) => {
   }
 };
 
+//for auth users
 const addToUserCart = async (req, res) => {
   let client;
   try {
@@ -635,4 +834,6 @@ module.exports = {
   deleteCartItem,
   autoMergeGuestCart,
   fetchGuestCart,
+  updateGuestCartItemQty,
+  deleteGuestCartItem,
 };

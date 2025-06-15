@@ -8,51 +8,6 @@ const initialState = {
   lastAction: null,
 };
 
-// export const addToGuestCart = createAsyncThunk(
-//   "cart/addToGuestCart",
-//   async ({ productId, quantity, guestId }, thunkAPI) => {
-//     try {
-//       const response = await axios.post(
-//         `${import.meta.env.VITE_API_URL}/api/cart/guest/add`,
-//         {
-//           productId,
-//           quantity,
-//           guestId,
-//         }
-//       );
-
-//       return response.data;
-//     } catch (error) {
-//       console.error(error);
-//       return thunkAPI.rejectWithValue(
-//         error.response?.data || { message: "Something went wrong" }
-//       );
-//     }
-//   }
-// );
-
-// export const addToUserCart = createAsyncThunk(
-//   "cart/addToUserCart",
-//   async ({ productId, quantity }, thunkAPI) => {
-//     try {
-//       const response = await axios.post(
-//         `${import.meta.env.VITE_API_URL}/api/cart/user/add`,
-//         {
-//           productId,
-//           quantity,
-//         }
-//       );
-
-//       return response.data;
-//     } catch (error) {
-//       console.error(error);
-//       return thunkAPI.rejectWithValue(
-//         error.response?.data || { message: "Something went wrong" }
-//       );
-//     }
-//   }
-// );
-
 export const addToCartUnified = createAsyncThunk(
   "cart/addToCartUnified",
   async ({ productId, quantity, userId, isAuthenticated }, thunkAPI) => {
@@ -181,48 +136,6 @@ const CartSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // .addCase(addToGuestCart.pending, (state) => {
-      //   console.log("Cart add PENDING");
-      //   state.status = "loading";
-      // })
-      // .addCase(addToGuestCart.fulfilled, (state, action) => {
-      //   console.log("Cart add SUCCESS", action.payload);
-      //   state.status = "succeeded";
-      //   state.cart = action.payload.data;
-      //   state.lastAction = "add";
-
-      //   // Persist to localStorage
-      //   localStorage.setItem("cart", JSON.stringify(state.cart));
-
-      //   //  Save guestId if returned
-      //   if (action.payload.guestId) {
-      //     state.cart.guestId = action.payload.guestId;
-      //     localStorage.setItem("guestId", action.payload.guestId);
-      //   }
-      // })
-      // .addCase(addToGuestCart.rejected, (state, action) => {
-      //   console.error("Cart add FAILED", action.error);
-      //   state.status = "failed";
-      //   state.error = action.payload;
-      //   state.lastAction = "add_failed";
-      // })
-      // .addCase(addToUserCart.pending, (state) => {
-      //   console.log("Cart add PENDING");
-      //   state.status = "loading";
-      // })
-      // .addCase(addToUserCart.fulfilled, (state, action) => {
-      //   console.log("Cart add SUCCESS", action.payload);
-      //   state.status = "succeeded";
-      //   state.cart = action.payload.data;
-      //   state.lastAction = "add";
-      // })
-      // .addCase(addToUserCart.rejected, (state, action) => {
-      //   console.error("Cart add FAILED", action.error);
-      //   state.status = "failed";
-      //   state.error = action.payload;
-      //   state.cart.items = [];
-      //   state.lastAction = "add_failed";
-      // })
       .addCase(addToCartUnified.pending, (state) => {
         state.status = "loading";
       })
