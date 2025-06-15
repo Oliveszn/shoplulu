@@ -24,15 +24,7 @@ const CartWrapper = ({ cart }) => {
           <span className="font-bold">${totalCartAmount}</span>
         </div>
       </div>
-      <button
-        // onClick={() => {
-        // navigate("/shop/checkout");
-        // setOpenCartSheet(false);
-        // }}
-        className="w-full mt-6"
-      >
-        Checkout
-      </button>
+      <button className="w-full mt-6">Checkout</button>
     </div>
   );
 };

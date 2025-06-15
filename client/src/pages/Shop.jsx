@@ -25,7 +25,7 @@ const Shop = () => {
   const items = useSelector(selectCartItems);
   const status = useSelector(selectCartStatus);
 
-  const handleAddtoCart = (getCurrentProductId, getTotalStock) => {
+  const handleAddtoCart = async (getCurrentProductId, getTotalStock) => {
     // Stock check logic
     let getCartItems = cart.items || [];
 
@@ -49,33 +49,41 @@ const Shop = () => {
       }
     }
 
-    // Single dispatch that handles both user and guest
-    dispatch(
-      addToCartUnified({
-        productId: getCurrentProductId,
-        quantity: 1,
-        userId: user?.id,
-        isAuthenticated: !!user?.id,
-      })
-    ).then((data) => {
-      if (data?.payload?.success) {
-        // Refresh cart items based on user type
-        if (user?.id) {
-          dispatch(fetchCartItems(user?.id));
-        } else {
-          // Handle guest cart refresh if needed
-          const guestId = localStorage.getItem("guestId");
-          dispatch(fetchGuestCartItems(guestId));
-        }
+    try {
+      const action = await dispatch(
+        addToCartUnified({
+          productId: getCurrentProductId,
+          quantity: 1,
+          userId: user?.id,
+          isAuthenticated: !!user?.id,
+        })
+      ).then((data) => {
+        if (data?.payload?.success) {
+          if (user?.id) {
+            dispatch(fetchCartItems(user?.id));
+          } else {
+            const guestId = localStorage.getItem("guestId");
+            dispatch(fetchGuestCartItems(guestId));
+          }
 
-        dispatch(
-          showSnackbar({
-            message: "Item added to cart!",
-            anchorOrigin: { vertical: "top", horizontal: "center" },
-          })
-        );
-      }
-    });
+          dispatch(
+            showSnackbar({
+              message: "Item added to cart!",
+              anchorOrigin: { vertical: "top", horizontal: "center" },
+              severity: "success",
+            })
+          );
+        }
+      });
+    } catch (error) {
+      dispatch(
+        showSnackbar({
+          message: "Failed to add item to cart",
+          anchorOrigin: { vertical: "top", horizontal: "center" },
+          severity: "error",
+        })
+      );
+    }
   };
 
   useEffect(() => {

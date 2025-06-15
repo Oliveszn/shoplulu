@@ -13,7 +13,6 @@ export const addToCartUnified = createAsyncThunk(
   async ({ productId, quantity, userId, isAuthenticated }, thunkAPI) => {
     try {
       if (isAuthenticated) {
-        // User is authenticated - use user cart endpoint
         const response = await axios.post(
           `${import.meta.env.VITE_API_URL}/api/cart/user/add`,
           {
@@ -82,35 +81,88 @@ export const fetchCartItems = createAsyncThunk(
   }
 );
 
-export const updateCartQuantity = createAsyncThunk(
-  "cart/updateCartQuantity",
-  async ({ productId, quantity }) => {
-    const response = await axios.put(
-      `${import.meta.env.VITE_API_URL}/api/cart/user/update-cart`,
-      {
-        productId,
-        quantity,
-      },
-      {
-        withCredentials: true,
-      }
-    );
+export const updateCartQuantityUnified = createAsyncThunk(
+  "cart/updateCartQuantityUnified",
+  async ({ productId, quantity, userId, isAuthenticated }, thunkAPI) => {
+    try {
+      if (isAuthenticated) {
+        const response = await axios.put(
+          `${import.meta.env.VITE_API_URL}/api/cart/user/update-cart`,
+          {
+            productId,
+            quantity,
+          },
+          {
+            withCredentials: true,
+          }
+        );
+        return { ...response.data, type: "user" };
+      } else {
+        // Get or generate guest ID
+        let guestId = localStorage.getItem("guestId");
+        // if (!guestId) {
+        //   guestId = `guest_${Date.now()}_${Math.random()
+        //     .toString(36)
+        //     .slice(2)}`;
+        // }
 
-    return response.data;
+        const response = await axios.put(
+          `${import.meta.env.VITE_API_URL}/api/cart/guest/update-cart`,
+          {
+            productId,
+            quantity,
+            guestId,
+          }
+        );
+
+        return { ...response.data, type: "guest" };
+      }
+    } catch (error) {
+      console.error(error);
+      return thunkAPI.rejectWithValue(
+        error.response?.data || { message: "Something went wrong" }
+      );
+    }
   }
 );
 
-export const deleteCartItem = createAsyncThunk(
-  "cart/deleteCartItem",
-  async ({ productId }) => {
-    const response = await axios.delete(
-      `${import.meta.env.VITE_API_URL}/api/cart/user/delete`,
-      {
-        data: { productId },
-        withCredentials: true,
+export const deleteCartItemUnified = createAsyncThunk(
+  "cart/deleteCartItemUnified",
+  async ({ productId, userId, isAuthenticated }, thunkAPI) => {
+    try {
+      if (isAuthenticated) {
+        const response = await axios.delete(
+          `${import.meta.env.VITE_API_URL}/api/cart/user/delete`,
+          {
+            data: { productId },
+            withCredentials: true,
+          }
+        );
+        return { ...response.data, type: "user" };
+      } else {
+        // Get or generate guest ID
+        let guestId = localStorage.getItem("guestId");
+        // if (!guestId) {
+        //   guestId = `guest_${Date.now()}_${Math.random()
+        //     .toString(36)
+        //     .slice(2)}`;
+        // }
+
+        const response = await axios.delete(
+          `${import.meta.env.VITE_API_URL}/api/cart/guest/delete`,
+          {
+            data: { productId, guestId },
+          }
+        );
+
+        return { ...response.data, type: "guest" };
       }
-    );
-    return response.data;
+    } catch (error) {
+      console.error(error);
+      return thunkAPI.rejectWithValue(
+        error.response?.data || { message: "Something went wrong" }
+      );
+    }
   }
 );
 
@@ -151,10 +203,8 @@ const CartSlice = createSlice({
         state.lastAction = "add";
       })
       .addCase(addToCartUnified.rejected, (state, action) => {
-        console.error("Cart add FAILED", action.error);
         state.status = "failed";
         state.error = action.payload;
-        state.cart.items = [];
         state.lastAction = "add_failed";
       })
       .addCase(fetchGuestCartItems.pending, (state) => {
@@ -181,29 +231,42 @@ const CartSlice = createSlice({
         state.status = "failed";
         state.error = action.payload;
       })
-      .addCase(updateCartQuantity.pending, (state) => {
-        state.status = "loading";
+      .addCase(updateCartQuantityUnified.pending, (state) => {
+        // state.status = "loading";
       })
-      .addCase(updateCartQuantity.fulfilled, (state, action) => {
+      .addCase(updateCartQuantityUnified.fulfilled, (state, action) => {
         state.status = "succeeded";
         state.cart = action.payload.data;
+
+        state.lastAction = "update_succeeded";
+
+        if (action.payload.type === "guest" && action.payload.guestId) {
+          state.cart.guestId = action.payload.guestId;
+          localStorage.setItem("guestId", action.payload.guestId);
+        }
       })
-      .addCase(updateCartQuantity.rejected, (state, action) => {
-        state.status = "failed";
+      .addCase(updateCartQuantityUnified.rejected, (state, action) => {
+        state.status = "rejected";
         state.error = action.payload;
+        state.lastAction = "update_failed";
       })
-      .addCase(deleteCartItem.pending, (state) => {
-        state.status = "loading";
+      .addCase(deleteCartItemUnified.pending, (state) => {
+        // state.status = "loading";
       })
-      .addCase(deleteCartItem.fulfilled, (state, action) => {
+      .addCase(deleteCartItemUnified.fulfilled, (state, action) => {
         state.status = "succeeded";
         state.cart = action.payload.data;
-        console.log("Delete fulfilled payload:", action.payload);
-        console.log("Delete fulfilled payload:", action.payload.data);
+        state.lastAction = "delete_succeeded";
+
+        if (action.payload.type === "guest" && action.payload.guestId) {
+          state.cart.guestId = action.payload.guestId;
+          localStorage.setItem("guestId", action.payload.guestId);
+        }
       })
-      .addCase(deleteCartItem.rejected, (state, action) => {
+      .addCase(deleteCartItemUnified.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.payload;
+        state.lastAction = "delete_failed";
       });
   },
 });

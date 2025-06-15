@@ -1,19 +1,30 @@
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Minus, Plus, Trash } from "lucide-react";
-import { deleteCartItem, updateCartQuantity } from "../../store/cart-slice";
+import {
+  deleteCartItem,
+  deleteCartItemUnified,
+  updateCartQuantity,
+  updateCartQuantityUnified,
+} from "../../store/cart-slice";
 import MuiSnackbar from "../ui/MuiSnackbar";
 import { showSnackbar } from "../../store/ui/snackbarslice";
 
 const CartContent = ({ cart: item }) => {
   const { cart } = useSelector((state) => state.cart);
   const { productList } = useSelector((state) => state.adminProducts);
+  const { user } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
 
   const handleCartItemDelete = (item) => {
-    dispatch(deleteCartItem({ productId: item?.productId })).then((data) => {
+    dispatch(
+      deleteCartItemUnified({
+        productId: item?.productId,
+        userId: user?.id,
+        isAuthenticated: !!user?.id,
+      })
+    ).then((data) => {
       if (data?.payload?.success) {
-        console.log("Cart item is deleted successfully");
         dispatch(
           showSnackbar({
             message: "Item deleted from cart!",
@@ -37,18 +48,11 @@ const CartContent = ({ cart: item }) => {
         const getCurrentProductIndex = productList.findIndex(
           (product) => String(product.product_id) === String(getItem?.productId)
         );
-        // console.log(indexOfCurrentCartItem, getCurrentProductIndex);
-
         const getTotalStock = productList[getCurrentProductIndex].stock;
-
-        // console.log(getCurrentProductIndex, getTotalStock, "getTotalStock");
 
         if (indexOfCurrentCartItem > -1) {
           const getQuantity = getItems[indexOfCurrentCartItem].quantity;
           if (getQuantity + 1 > getTotalStock) {
-            console.log(
-              `Only ${getQuantity} quantity can be added for this item`
-            );
             dispatch(
               showSnackbar({
                 message: `Only ${getQuantity} quantity can be added for this item`,
@@ -63,16 +67,23 @@ const CartContent = ({ cart: item }) => {
     }
 
     dispatch(
-      updateCartQuantity({
+      updateCartQuantityUnified({
         productId: getItem?.productId,
         quantity:
           typeOfAction === "plus"
             ? getItem?.quantity + 1
             : getItem?.quantity - 1,
+        userId: user?.id,
+        isAuthenticated: !!user?.id,
       })
     ).then((data) => {
       if (data?.payload?.success) {
-        console.log("Cart item is updated successfully");
+        dispatch(
+          showSnackbar({
+            message: "Cart item is updated successfully",
+            anchorOrigin: { vertical: "top", horizontal: "center" },
+          })
+        );
       }
     });
   };
