@@ -10,20 +10,31 @@ const Shoptile = ({ product, handleGetProductDetails, handleAddtoCart }) => {
   const status = useSelector(selectCartStatus);
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  // const slugify = (text) => text.toLowerCase().split(" ").join("-");
+  const createSlug = (str) => {
+    return str
+      .toLowerCase()
+      .replace(/\s+/g, "-") // Replace spaces with -
+      .replace(/[^\w-]+/g, "") // Remove all non-word chars
+      .replace(/--+/g, "-") // Replace multiple - with single
+      .replace(/^-+/, "") // Trim - from start
+      .replace(/-+$/, ""); // Trim - from end
+  };
 
-  const goToProductDetails = () => {
-    dispatch(fetchProductDetails(product.product_id));
-    navigate(`/product/${product.product_id}`);
-    // navigate(`/product/${slugify(product.name)}`);
+  const goToProductDetails = async () => {
+    try {
+      const slug = createSlug(product.name);
+      navigate(`/shop/product/${slug}/${product.product_id}`);
+      const result = await dispatch(
+        fetchProductDetails(product.product_id)
+      ).unwrap();
+    } catch (error) {
+      console.error("Failed to fetch product:", error);
+    }
   };
   return (
     <>
       <div
         className="w-full max-w-sm mx-auto bg-transparent shadow"
-        // onClick={() => {
-        //   handleGetProductDetails(product.product_id);
-        // }}
         onClick={goToProductDetails}
       >
         <div className="">
@@ -86,7 +97,6 @@ const Shoptile = ({ product, handleGetProductDetails, handleAddtoCart }) => {
         </button> */}
         </div>
       </div>
-      {/* <ProductDetails handleAddtoCart={handleAddtoCart} /> */}
     </>
   );
 };

@@ -5,7 +5,7 @@ import {
   fetchProductDetails,
 } from "../store/admin/products-slice";
 import Shoptile from "../components/shop-view/Shoptile";
-import { useNavigate } from "react-router-dom";
+import { Route, Routes, useNavigate } from "react-router-dom";
 import {
   addToCartUnified,
   fetchCartItems,
@@ -24,17 +24,6 @@ const Shop = () => {
   const navigate = useNavigate();
   const items = useSelector(selectCartItems);
   const status = useSelector(selectCartStatus);
-
-  const handleGetProductDetails = async (getCurrentProductId) => {
-    try {
-      const result = await dispatch(
-        fetchProductDetails(getCurrentProductId)
-      ).unwrap();
-      navigate("/product");
-    } catch (error) {
-      console.error("Failed to fetch product:", error);
-    }
-  };
 
   const handleAddtoCart = (getCurrentProductId, getTotalStock) => {
     // Stock check logic
@@ -93,20 +82,29 @@ const Shop = () => {
     dispatch(fetchAllProducts());
   }, [dispatch]);
   return (
-    <div className="pt-30 px-8 md:px-6">
-      <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-4">
-        {productList && productList.length > 0
-          ? productList.map((productItem, i) => (
-              <Shoptile
-                product={productItem}
-                key={productItem.product_id || i}
-                // handleGetProductDetails={handleGetProductDetails}
-                handleAddtoCart={handleAddtoCart}
-              />
-            ))
-          : null}
-      </div>
-    </div>
+    <Routes>
+      <Route
+        index
+        element={
+          <div className="pt-30 px-8 md:px-6">
+            <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-4">
+              {productList?.map((productItem, i) => (
+                <Shoptile
+                  product={productItem}
+                  key={productItem.product_id || i}
+                  handleAddtoCart={handleAddtoCart}
+                />
+              ))}
+            </div>
+          </div>
+        }
+      />
+
+      <Route
+        path="product/:slug/:id"
+        element={<ProductDetails handleAddtoCart={handleAddtoCart} />}
+      />
+    </Routes>
   );
 };
 
