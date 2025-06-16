@@ -15,6 +15,7 @@ import {
 } from "../store/cart-slice";
 import ProductDetails from "./ProductDetails";
 import { showSnackbar } from "../store/ui/snackbarslice";
+import { Outlet } from "react-router-dom";
 
 const Shop = () => {
   const { productList } = useSelector((state) => state.adminProducts);

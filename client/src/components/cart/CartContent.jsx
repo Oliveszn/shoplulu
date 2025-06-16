@@ -2,12 +2,9 @@ import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Minus, Plus, Trash } from "lucide-react";
 import {
-  deleteCartItem,
   deleteCartItemUnified,
-  updateCartQuantity,
   updateCartQuantityUnified,
 } from "../../store/cart-slice";
-import MuiSnackbar from "../ui/MuiSnackbar";
 import { showSnackbar } from "../../store/ui/snackbarslice";
 
 const CartContent = ({ cart: item }) => {
@@ -38,7 +35,6 @@ const CartContent = ({ cart: item }) => {
   const handleUpdateQuantity = (getItem, typeOfAction) => {
     if (typeOfAction == "plus") {
       let getItems = cart.items || [];
-      console.log(getItems);
 
       if (getItems.length) {
         const indexOfCurrentCartItem = getItems.findIndex(

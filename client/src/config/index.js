@@ -93,3 +93,54 @@ export const subCategoriesByCategory = {
     { id: "bag", label: "Bag" },
   ],
 };
+
+export const addressFormControls = [
+  {
+    label: "Address",
+    name: "address_line1",
+    componentType: "input",
+    type: "text",
+    placeholder: "Enter your address",
+  },
+  {
+    label: "City",
+    name: "city",
+    componentType: "input",
+    type: "text",
+    placeholder: "Enter your city",
+  },
+  {
+    label: "State",
+    name: "state",
+    componentType: "input",
+    type: "text",
+    placeholder: "Enter your state",
+  },
+  {
+    label: "Postal Code",
+    name: "postal_code",
+    componentType: "input",
+    type: "text",
+    placeholder: "Enter your Postal code",
+  },
+  {
+    label: "Phone",
+    name: "phone",
+    componentType: "input",
+    type: "text",
+    placeholder: "Enter your phone number",
+  },
+  {
+    label: "Phone 2",
+    name: "phone_2",
+    componentType: "input",
+    type: "text",
+    placeholder: "Enter a second phone number",
+  },
+  {
+    label: "Notes",
+    name: "notes",
+    componentType: "textarea",
+    placeholder: "Enter any additional notes",
+  },
+];

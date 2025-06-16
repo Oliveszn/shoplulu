@@ -52,3 +52,48 @@ module.exports = {
 // ADD CONSTRAINT unique_cart_product
 // UNIQUE (cart_id, product_id);
 // );
+
+// CREATE TABLE orders (
+//     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+//     user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+//     cart_id INTEGER REFERENCES carts(cart_id),
+
+//    address_id INTEGER REFERENCES address(id),
+
+//     -- Order details
+//     order_status VARCHAR(20) NOT NULL DEFAULT 'processing'
+//     CHECK (order_status IN ('processing', 'shipped', 'delivered', 'cancelled')),
+//     payment_method VARCHAR(20) NOT NULL
+//     CHECK (payment_method IN ('paypal', 'card', 'bank_transfer')),
+//     payment_status VARCHAR(20) NOT NULL DEFAULT 'pending'
+//     CHECK (payment_status IN ('pending', 'completed', 'failed', 'refunded')),
+//     total_amount DECIMAL(12,2) NOT NULL CHECK (total_amount > 0),
+//     order_date TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+//     order_update_date TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+//     payment_id VARCHAR(255),
+//     payer_id VARCHAR(255),
+
+//     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+//     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+// );
+
+// CREATE TABLE order_items (
+//   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+//   order_id UUID NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
+//   product_id BIGINT NOT NULL REFERENCES products(product_id),
+//   name VARCHAR(255) NOT NULL,
+//   images VARCHAR(255),
+//   price DECIMAL(10,2) NOT NULL,
+//   quantity INTEGER NOT NULL CHECK (quantity > 0)
+// );
+
+// CREATE TABLE order_addresses (
+//   order_id UUID PRIMARY KEY REFERENCES orders(id) ON DELETE CASCADE,
+//   address_line1 TEXT NOT NULL,
+//   city TEXT NOT NULL,
+//   state TEXT NOT NULL,
+//   postal_code TEXT NOT NULL,
+//   phone TEXT NOT NULL,
+//   phone_2 TEXT,
+//   notes TEXT
+// );

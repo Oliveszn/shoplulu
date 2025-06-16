@@ -18,6 +18,9 @@ import AdminProducts from "./pages/admin-view/Products";
 import ProductDetails from "./pages/ProductDetails";
 import { fetchCartItems, fetchGuestCartItems } from "./store/cart-slice";
 import MuiSnackbar from "./components/ui/MuiSnackbar";
+import Checkout from "./pages/Checkout";
+import UserAccount from "./pages/UserAccount";
+import NotFound from "./pages/notfound";
 
 function App() {
   const location = useLocation();
@@ -52,8 +55,11 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
-        <Route path="/shop/*" element={<Shop />} />
         <Route path="/store" element={<Store />} />
+
+        <Route path="/shop/*" element={<Shop />} />
+        <Route path="/shop/checkout" element={<Checkout />} />
+        <Route path="/shop/account" element={<UserAccount />} />
 
         <Route
           path="/auth"
@@ -82,6 +88,7 @@ function App() {
           {/* <Route path="contacts" element={<AdminContacts />} /> */}
           {/* <Route path="about" element={<AdminAbout />} /> */}
         </Route>
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </>
   );
