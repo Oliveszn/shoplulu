@@ -40,25 +40,43 @@ const CartContent = ({ cart: item }) => {
         const indexOfCurrentCartItem = getItems.findIndex(
           (item) => item.productId === getItem?.productId
         );
+        if (productList) {
+          const getCurrentProduct = productList.find(
+            (product) =>
+              String(product.product_id) === String(getItem?.productId)
+          );
 
-        const getCurrentProductIndex = productList.findIndex(
-          (product) => String(product.product_id) === String(getItem?.productId)
-        );
-        const getTotalStock = productList[getCurrentProductIndex].stock;
-
-        if (indexOfCurrentCartItem > -1) {
-          const getQuantity = getItems[indexOfCurrentCartItem].quantity;
-          if (getQuantity + 1 > getTotalStock) {
-            dispatch(
-              showSnackbar({
-                message: `Only ${getQuantity} quantity can be added for this item`,
-                anchorOrigin: { vertical: "top", horizontal: "center" },
-              })
-            );
-
-            return;
+          if (getCurrentProduct?.stock !== undefined) {
+            if (getItem.quantity + 1 > getCurrentProduct.stock) {
+              dispatch(
+                showSnackbar({
+                  message: `Only ${getCurrentProduct.stock} available`,
+                  anchorOrigin: { vertical: "top", horizontal: "center" },
+                })
+              );
+              return;
+            }
           }
         }
+
+        // const getCurrentProductIndex = productList.findIndex(
+        //   (product) => String(product.product_id) === String(getItem?.productId)
+        // );
+        // const getTotalStock = productList[getCurrentProductIndex].stock;
+
+        // if (indexOfCurrentCartItem > -1) {
+        //   const getQuantity = getItems[indexOfCurrentCartItem].quantity;
+        //   if (getQuantity + 1 > getTotalStock) {
+        //     dispatch(
+        //       showSnackbar({
+        //         message: `Only ${getQuantity} quantity can be added for this item`,
+        //         anchorOrigin: { vertical: "top", horizontal: "center" },
+        //       })
+        //     );
+
+        //     return;
+        //   }
+        // }
       }
     }
 

@@ -23,17 +23,6 @@ const CartWrapper = ({ cart }) => {
           : null}
       </div>
 
-      {/* <div className="mt-8 fixed bottom-0">
-        <div className="flex justify-between">
-          <span className="font-bold">Total:</span>
-          <span className="font-bold">${totalCartAmount}</span>
-        </div>
-
-        <button className="w-full mt-6 bg-amber-950 text-white py-4 px-2 cursor-pointer">
-          Checkout
-        </button>
-      </div> */}
-
       <div className="w-full">
         <div className="flex justify-between">
           <span className="font-bold">Subtotal:</span>
