@@ -63,6 +63,18 @@ export const deleteAddress = createAsyncThunk(
   }
 );
 
+export const setDefaultAddress = createAsyncThunk(
+  "/address/setDefault",
+  async (addressId) => {
+    const response = await axios.put(
+      `${import.meta.env.VITE_API_URL}/api/address/default/${addressId}`,
+      {},
+      { withCredentials: true }
+    );
+    return response.data;
+  }
+);
+
 const addressSlice = createSlice({
   name: "address",
   initialState,
@@ -110,6 +122,17 @@ const addressSlice = createSlice({
         state.addressList = action.payload.data;
       })
       .addCase(deleteAddress.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload;
+      })
+      .addCase(setDefaultAddress.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(setDefaultAddress.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        // state.addressList = action.payload.data;
+      })
+      .addCase(setDefaultAddress.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.payload;
       });

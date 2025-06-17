@@ -47,7 +47,6 @@ const Address = ({ setCurrentSelectedAddress, selectedId }) => {
     currentEditedId !== null
       ? dispatch(
           editaAddress({
-            // userId: user?.id,
             addressId: currentEditedId,
             formData,
           })
@@ -67,7 +66,6 @@ const Address = ({ setCurrentSelectedAddress, selectedId }) => {
       : dispatch(
           addNewAddress({
             ...formData,
-            // userId: user?.id,
           })
         ).then((data) => {
           if (data?.payload?.success) {
@@ -119,27 +117,55 @@ const Address = ({ setCurrentSelectedAddress, selectedId }) => {
       .every((item) => item);
   };
 
-  useEffect(() => {
-    dispatch(fetchAllAddresses());
-  }, [dispatch]);
+  // useEffect(() => {
+  //   dispatch(fetchAllAddresses());
+  // }, [dispatch]);
   console.log(addressList);
+
+  useEffect(() => {
+    dispatch(fetchAllAddresses()).then((res) => {
+      const addresses = res?.payload?.data;
+      if (addresses && addresses.length > 0) {
+        const defaultAddress = addresses.find((a) => a.is_default);
+        if (defaultAddress) {
+          setCurrentSelectedAddress(defaultAddress); // sets the red border
+        }
+      }
+    });
+  }, [dispatch]);
 
   return (
     // <div className="flex justify-center items-start py-10">
     <Card className="w-full p-4 shadow-md" sx={{ maxWidth: 400 }}>
       <div className="mb-5 p-3 grid grid-cols-1 sm:grid-cols-2  gap-2">
-        {addressList && addressList.length > 0
-          ? addressList.map((singleAddressItem, index) => (
-              <AddressCard
-                selectedId={selectedId}
-                handleDeleteAddress={handleDeleteAddress}
-                addressInfo={singleAddressItem}
-                handleEditAddress={handleEditAddress}
-                setCurrentSelectedAddress={setCurrentSelectedAddress}
-                key={index}
-              />
-            ))
-          : null}
+        {addressList && addressList.length > 0 ? (
+          addressList.map((singleAddressItem, index) => (
+            <AddressCard
+              selectedId={selectedId}
+              handleDeleteAddress={handleDeleteAddress}
+              addressInfo={singleAddressItem}
+              handleEditAddress={handleEditAddress}
+              setCurrentSelectedAddress={setCurrentSelectedAddress}
+              key={index}
+            />
+          ))
+        ) : (
+          <p>No addresses found.</p>
+        )}
+        {/* {addressList.length === 0 ? (
+          <p>No addresses found.</p>
+        ) : (
+          addressList.map((singleAddressItem, index) => (
+            <AddressCard
+              selectedId={selectedId}
+              handleDeleteAddress={handleDeleteAddress}
+              addressInfo={singleAddressItem}
+              handleEditAddress={handleEditAddress}
+              setCurrentSelectedAddress={setCurrentSelectedAddress}
+              key={index}
+            />
+          ))
+        )} */}
       </div>
       <CardHeader
         title={currentEditedId !== null ? "Edit Address" : "Add New Address"}

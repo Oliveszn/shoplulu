@@ -97,14 +97,13 @@ const address = {
   // Set default address for a user
   async setDefault(userId, addressId) {
     // First reset any existing default
-    await db.query(
-      "UPDATE addresses SET is_default = false WHERE user_id = $1",
-      [userId]
-    );
+    await db.query("UPDATE address SET is_default = false WHERE user_id = $1", [
+      userId,
+    ]);
 
     // Set new default
     const query =
-      "UPDATE addresses SET is_default = true WHERE id = $1 AND user_id = $2 RETURNING *";
+      "UPDATE address SET is_default = true WHERE id = $1 AND user_id = $2 RETURNING *";
     const { rows } = await db.query(query, [addressId, userId]);
     return rows[0];
   },

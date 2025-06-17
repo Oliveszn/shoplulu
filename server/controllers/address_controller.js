@@ -153,4 +153,45 @@ const editAddress = async (req, res) => {
   }
 };
 
-module.exports = { addAddress, getAddresses, deleteAddress, editAddress };
+//change default address
+const defaultAddress = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { id: addressId } = req.params;
+    // Validate required fields
+    if (!addressId) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid Address",
+      });
+    }
+
+    const updateDefault = await address.setDefault(userId, addressId);
+    if (!updateDefault) {
+      return res.status(404).json({
+        success: false,
+        message: "Address not found or update failed",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: updateDefault,
+      message: "Default address updated.",
+    });
+  } catch (error) {
+    console.error("Error updating address:", error.message);
+    res.status(500).json({
+      success: false,
+      message: "Error occurred while updating address",
+    });
+  }
+};
+
+module.exports = {
+  addAddress,
+  getAddresses,
+  deleteAddress,
+  editAddress,
+  defaultAddress,
+};
