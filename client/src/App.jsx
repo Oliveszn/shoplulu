@@ -21,6 +21,7 @@ import MuiSnackbar from "./components/ui/MuiSnackbar";
 import Checkout from "./pages/Checkout";
 import UserAccount from "./pages/UserAccount";
 import NotFound from "./pages/notfound";
+import AdminOrders from "./pages/admin-view/Orders";
 
 function App() {
   const location = useLocation();
@@ -83,7 +84,7 @@ function App() {
         >
           <Route path="dashboard" element={<AdminDashboard />} />
           <Route path="products" element={<AdminProducts />} />
-          {/* <Route path="thinking" element={<AdminThinking />} /> */}
+          <Route path="orders" element={<AdminOrders />} />
           {/* <Route path="news" element={<AdminNews />} /> */}
           {/* <Route path="contacts" element={<AdminContacts />} /> */}
           {/* <Route path="about" element={<AdminAbout />} /> */}

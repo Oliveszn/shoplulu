@@ -8,6 +8,7 @@ const authRouter = require("./routes/authRoutes");
 const productRoute = require("./routes/productRoutes");
 const addressRoute = require("./routes/addressRoutes");
 const cartRoute = require("./routes/cartRoutes");
+const orderRoute = require("./routes/orderRoutes");
 
 ///middleware
 app.use(
@@ -31,4 +32,5 @@ app.use("/api/auth", authRouter);
 app.use("/api/products", productRoute);
 app.use("/api/address", addressRoute);
 app.use("/api/cart", cartRoute);
+app.use("/api/order", orderRoute);
 app.listen(PORT, () => console.log(`server on ports ${5000}`));
