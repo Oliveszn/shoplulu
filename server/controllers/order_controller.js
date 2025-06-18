@@ -124,7 +124,7 @@ const createOrder = async (req, res) => {
       userId,
       cartId: null,
       addressId: selectedAddressId,
-      orderStatus: "processing",
+      order_status: "processing",
       paymentMethod,
       paymentStatus: "pending",
       totalAmount,
@@ -318,10 +318,72 @@ const getOrderDetails = async (req, res) => {
       data: orderDetails,
     });
   } catch (error) {
-    console.log(e);
+    console.log(error);
     res.status(500).json({
       success: false,
       message: "Some error occured!",
+    });
+  }
+};
+
+///////FOR ADMIN
+const getAllOrdersOfAllUsers = async (req, res) => {
+  try {
+    const allOrders = await order.findAll();
+
+    if (!allOrders.length) {
+      return res.status(404).json({
+        success: false,
+        message: "No orders found!",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: allOrders,
+    });
+  } catch (e) {
+    res.status(500).json({
+      success: false,
+      message: "Some error occured!",
+    });
+  }
+};
+
+const updateOrderStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { order_status } = req.body;
+
+    if (!order_status) {
+      return res.status(404).json({
+        success: false,
+        message: "Order Status is required",
+      });
+    }
+    const updatedOrder = await order.setOrderStatus(id, order_status);
+
+    if (!updatedOrder) {
+      return res.status(404).json({
+        success: false,
+        message: "Order not found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: updatedOrder,
+      message: `Order status updated to ${order_status}`,
+    });
+  } catch (error) {
+    console.error("Error updating order status:", error);
+
+    const statusCode = error.message.includes("Invalid") ? 400 : 500;
+    res.status(statusCode).json({
+      success: false,
+      message: error.message.includes("Invalid")
+        ? error.message
+        : "Failed to update order status",
     });
   }
 };
@@ -331,4 +393,6 @@ module.exports = {
   // capturePayment,
   getAllOrdersByUser,
   getOrderDetails,
+  getAllOrdersOfAllUsers,
+  updateOrderStatus,
 };
