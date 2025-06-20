@@ -17,7 +17,6 @@ const AuthLogin = () => {
 
   const onSubmit = (e) => {
     e.preventDefault();
-    console.log("FormData:", formData);
     dispatch(loginUser(formData)).then((data) => {
       if (data?.payload?.success) {
         console.log("yes");

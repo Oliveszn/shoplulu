@@ -1,6 +1,7 @@
 import { Box, Tab, Tabs } from "@mui/material";
 import React, { useState } from "react";
 import Address from "../components/address/Address";
+import Orders from "../components/orders/orders";
 
 const UserAccount = () => {
   const [value, setValue] = useState(0);
@@ -30,7 +31,7 @@ const UserAccount = () => {
         </Tabs>
       </Box>
       <TabPanel value={value} index={0}>
-        Item One
+        <Orders />
       </TabPanel>
       <TabPanel value={value} index={1}>
         <Address />

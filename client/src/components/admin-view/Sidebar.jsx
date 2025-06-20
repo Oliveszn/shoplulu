@@ -23,9 +23,9 @@ const Menuitems = ({ setOpen }) => {
       icon: <ShoppingBasket />,
     },
     {
-      id: "thinking",
-      label: "Thinking",
-      path: "/admin/thinking",
+      id: "order",
+      label: "Order",
+      path: "/admin/orders",
       icon: <BadgeCheck />,
     },
     {

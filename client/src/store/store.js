@@ -4,6 +4,7 @@ import adminProductsSlice from "./admin/products-slice";
 import CartSlice from "./cart-slice";
 import snackbarReducer from "./ui/snackbarslice";
 import addressSlice from "./address-slice";
+import orderSlice from "./orders-slice";
 
 const store = configureStore({
   reducer: {
@@ -11,6 +12,7 @@ const store = configureStore({
     adminProducts: adminProductsSlice,
     cart: CartSlice,
     address: addressSlice,
+    order: orderSlice,
 
     //UI
     snackbar: snackbarReducer,

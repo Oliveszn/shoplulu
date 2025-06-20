@@ -1,36 +1,12 @@
-import React, { useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import React from "react";
+import Dialog from "@mui/material/Dialog";
+import DialogTitle from "@mui/material/DialogTitle";
+import { useSelector } from "react-redux";
 import { Badge, DialogContent, Divider } from "@mui/material";
-import {
-  getAllOrdersForAdmin,
-  getOrderDetails,
-  updateOrderStatus,
-} from "../../store/orders-slice";
-import CommonForm from "../common/Form";
 
-const AdminOrderDetails = ({ orderDetails }) => {
+const OrderDetails = ({ orderDetails }) => {
   const { user } = useSelector((state) => state.auth);
-  const initialFormData = {
-    status: "",
-  };
-  const [formData, setFormData] = useState(initialFormData);
-  const dispatch = useDispatch();
 
-  const handleUpdateStatus = (event) => {
-    event.preventDefault();
-    const { status } = formData;
-
-    dispatch(
-      updateOrderStatus({ id: orderDetails?.id, orderStatus: status })
-    ).then((data) => {
-      if (data?.payload?.success) {
-        dispatch(getOrderDetails(orderDetails?.id));
-        dispatch(getAllOrdersForAdmin());
-        setFormData(initialFormData);
-        console.log(data?.payload.message);
-      }
-    });
-  };
   return (
     <React.Fragment>
       <DialogContent
@@ -113,32 +89,10 @@ const AdminOrderDetails = ({ orderDetails }) => {
               </div>
             </div>
           </div>
-
-          <div>
-            <CommonForm
-              formControls={[
-                {
-                  label: "Order Status",
-                  name: "status",
-                  componentType: "select",
-                  options: [
-                    { id: "processing", label: "Processing" },
-                    { id: "shipping", label: "Shipped" },
-                    { id: "delivered", label: "Delivered" },
-                    { id: "cancelled", label: "Cancelled" },
-                  ],
-                },
-              ]}
-              formData={formData}
-              setFormData={setFormData}
-              buttonText={"Update Order Status"}
-              onSubmit={handleUpdateStatus}
-            />
-          </div>
         </div>
       </DialogContent>
     </React.Fragment>
   );
 };
 
-export default AdminOrderDetails;
+export default OrderDetails;

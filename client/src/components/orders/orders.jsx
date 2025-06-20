@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  getAllOrdersForAdmin,
+  getAllOrdersByUserId,
   getOrderDetails,
   resetOrderDetails,
 } from "../../store/orders-slice";
 import {
   Badge,
+  Button,
   Card,
   CardContent,
   CardHeader,
@@ -17,24 +18,26 @@ import {
   TableHead,
   TableRow,
 } from "@mui/material";
-import AdminOrderDetails from "./OrderDetails";
+import OrderDetails from "./OrderDetails";
 
-const AdminOrdersView = () => {
+const Orders = () => {
   const [openDetailsDialog, setOpenDetailsDialog] = useState(false);
-  const { orderList, orderDetails } = useSelector((state) => state.order);
   const dispatch = useDispatch();
+  const { user } = useSelector((state) => state.auth);
+  const { orderList, orderDetails } = useSelector((state) => state.order);
 
   const handleFetchOrderDetails = (getId) => {
     dispatch(getOrderDetails(getId));
   };
 
   useEffect(() => {
-    dispatch(getAllOrdersForAdmin());
+    dispatch(getAllOrdersByUserId());
   }, [dispatch]);
 
   useEffect(() => {
     if (orderDetails !== null) setOpenDetailsDialog(true);
   }, [orderDetails]);
+
   return (
     <Card>
       <CardHeader title="Order history" />
@@ -98,7 +101,7 @@ const AdminOrdersView = () => {
                       maxWidth="md"
                       fullWidth={true}
                     >
-                      <AdminOrderDetails orderDetails={orderDetails} />
+                      <OrderDetails orderDetails={orderDetails} />
                     </Dialog>
                   </TableCell>
                 </TableRow>
@@ -117,4 +120,4 @@ const AdminOrdersView = () => {
   );
 };
 
-export default AdminOrdersView;
+export default Orders;

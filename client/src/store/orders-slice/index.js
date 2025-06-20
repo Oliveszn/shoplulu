@@ -47,26 +47,48 @@ export const getOrderDetails = createAsyncThunk(
 /////FOR ADMIN
 export const getAllOrdersForAdmin = createAsyncThunk(
   "/order/getAllOrdersForAdmin",
-  async () => {
-    const response = await axios.get(
-      `${import.meta.env.VITE_API_URL}/api/order/get`
-    );
-
-    return response.data;
+  async (_, { getState }) => {
+    try {
+      const response = await axios.get(
+        `${import.meta.env.VITE_API_URL}/api/order/get`,
+        {
+          withCredentials: true,
+          headers: {
+            Authorization: `Bearer ${getState().auth.token}`,
+            "x-access-token": getState().auth.token,
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
   }
 );
 
 export const updateOrderStatus = createAsyncThunk(
   "/order/updateOrderStatus",
-  async ({ id, orderStatus }) => {
-    const response = await axios.put(
-      `${import.meta.env.VITE_API_URL}/api/order/status/${id}`,
-      {
-        orderStatus,
-      }
-    );
+  async ({ id, orderStatus }, { getState, rejectWithValue }) => {
+    try {
+      const response = await axios.put(
+        `${import.meta.env.VITE_API_URL}/api/order/status/${id}`,
+        {
+          order_status: orderStatus,
+        },
+        {
+          withCredentials: true,
+          headers: {
+            Authorization: `Bearer ${getState().auth.token}`,
+            "x-access-token": getState().auth.token,
+          },
+        }
+      );
 
-    return response.data;
+      return response.data;
+    } catch (error) {
+      console.error("Update error:", error.response?.data);
+      return rejectWithValue(error.response?.data);
+    }
   }
 );
 
@@ -116,7 +138,6 @@ const orderSlice = createSlice({
       })
       .addCase(getOrderDetails.rejected, (state) => {
         state.isLoading = false;
-        state.orderDetails = null;
       })
       .addCase(getAllOrdersForAdmin.pending, (state) => {
         state.isLoading = true;
@@ -131,6 +152,6 @@ const orderSlice = createSlice({
   },
 });
 
-export const { resetOrderDetails } = adminOrderSlice.actions;
+export const { resetOrderDetails } = orderSlice.actions;
 
 export default orderSlice.reducer;

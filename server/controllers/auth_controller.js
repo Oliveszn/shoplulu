@@ -119,7 +119,10 @@ const logout = (req, res) => {
 const authMiddleware = async (req, res, next) => {
   // Try to get token from either cookies or Authorization header
   const token =
-    req.cookies?.token || req.headers.authorization?.replace("Bearer ", "");
+    req.cookies?.token ||
+    req.headers.authorization?.replace("Bearer ", "") ||
+    req.headers["x-access-token"];
+
   if (!token) {
     return res.status(401).json({
       success: false,

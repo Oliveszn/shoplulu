@@ -128,7 +128,6 @@ const Address = ({ setCurrentSelectedAddress, selectedId }) => {
       }
     });
   }, [dispatch]);
-  console.log(addressList);
 
   return (
     <Card className="w-full p-4 shadow-md" sx={{ maxWidth: 400 }}>

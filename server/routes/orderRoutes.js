@@ -19,7 +19,7 @@ router.get("/list", authMiddleware, getAllOrdersByUser);
 router.get("/details/:id", getOrderDetails);
 
 //for admin
-router.get("/get", checkAdmin, getAllOrdersOfAllUsers);
-router.put("/status/:id", checkAdmin, updateOrderStatus);
+router.get("/get", authMiddleware, checkAdmin, getAllOrdersOfAllUsers);
+router.put("/status/:id", authMiddleware, checkAdmin, updateOrderStatus);
 
 module.exports = router;
