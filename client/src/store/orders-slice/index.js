@@ -7,17 +7,63 @@ const initialState = {
   orderId: null,
   orderList: [],
   orderDetails: null,
+  paymentId: null,
 };
 
 export const createNewOrder = createAsyncThunk(
   "/order/createNewOrder",
-  async (orderData) => {
-    const response = await axios.post(
-      `${import.meta.env.VITE_API_URL}/api/order/create`,
-      orderData
-    );
+  async (orderData, { rejectWithValue }) => {
+    try {
+      const response = await axios.post(
+        `${import.meta.env.VITE_API_URL}/api/order/create`,
+        orderData,
 
-    return response.data;
+        { withCredentials: true, timeout: 5000 }
+      );
+
+      if (!response.data.success) {
+        return rejectWithValue(response.data);
+      }
+
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data || { message: "Failed to create order" }
+      );
+    }
+  }
+);
+
+// export const capturePayment = createAsyncThunk(
+//   "/order/capturePayment",
+//   async ({ paymentId, payerId, orderId }) => {
+//     const response = await axios.post(
+//       `${import.meta.env.VITE_API_URL}/api/order/capture`,
+//       {
+//         paymentId,
+//         payerId,
+//         orderId,
+//       }
+//     );
+
+//     return response.data;
+//   }
+// );
+
+export const capturePayment = createAsyncThunk(
+  "/order/capturePayment",
+  async (paymentData, { rejectWithValue }) => {
+    try {
+      const response = await axios.post(
+        `${import.meta.env.VITE_API_URL}/api/order/capture`,
+        paymentData
+      );
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data || { message: "Failed to capture payment" }
+      );
+    }
   }
 );
 
@@ -99,6 +145,9 @@ const orderSlice = createSlice({
     resetOrderDetails: (state) => {
       state.orderDetails = null;
     },
+    clearApprovalURL: (state) => {
+      state.approvalURL = null;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -107,17 +156,41 @@ const orderSlice = createSlice({
       })
       .addCase(createNewOrder.fulfilled, (state, action) => {
         state.isLoading = false;
-        // state.approvalURL = action.payload.approvalURL;
+        state.approvalURL = action.payload.approvalURL;
         state.orderId = action.payload.orderId;
+        state.paymentId = action.payload.paymentId;
+
+        // Store in sessionStorage for return from PayPal
         sessionStorage.setItem(
           "currentOrderId",
           JSON.stringify(action.payload.orderId)
         );
+        sessionStorage.setItem(
+          "currentPaymentId",
+          JSON.stringify(action.payload.paymentId)
+        );
       })
-      .addCase(createNewOrder.rejected, (state) => {
+      .addCase(createNewOrder.rejected, (state, action) => {
         state.isLoading = false;
-        // state.approvalURL = null;
+        state.approvalURL = null;
         state.orderId = null;
+        state.paymentId = null;
+        console.error("order creation failed", action.payload);
+      })
+      .addCase(capturePayment.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(capturePayment.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.orderDetails = action.payload.data;
+        state.approvalURL = null;
+        // Clear session storage after successful capture
+        sessionStorage.removeItem("currentOrderId");
+        sessionStorage.removeItem("currentPaymentId");
+      })
+      .addCase(capturePayment.rejected, (state, action) => {
+        state.isLoading = false;
+        console.error("Payment capture failed:", action.payload);
       })
       .addCase(getAllOrdersByUserId.pending, (state) => {
         state.isLoading = true;
@@ -152,6 +225,6 @@ const orderSlice = createSlice({
   },
 });
 
-export const { resetOrderDetails } = orderSlice.actions;
+export const { resetOrderDetails, clearApprovalURL } = orderSlice.actions;
 
 export default orderSlice.reducer;

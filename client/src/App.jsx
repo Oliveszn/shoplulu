@@ -22,6 +22,10 @@ import Checkout from "./pages/Checkout";
 import UserAccount from "./pages/UserAccount";
 import NotFound from "./pages/notfound";
 import AdminOrders from "./pages/admin-view/Orders";
+import PaypalReturnPage from "./pages/PaypalReturn";
+import PaypalSuccessPage from "./pages/PaypalSucess";
+import PaypalFailed from "./pages/PaypalFailed";
+import PayPalCancelPage from "./pages/PaypalCancelled";
 
 function App() {
   const location = useLocation();
@@ -61,6 +65,10 @@ function App() {
         <Route path="/shop/*" element={<Shop />} />
         <Route path="/shop/checkout" element={<Checkout />} />
         <Route path="/shop/account" element={<UserAccount />} />
+        <Route path="/shop/paypal-return" element={<PaypalReturnPage />} />
+        <Route path="/shop/paypal-cancel" element={<PayPalCancelPage />} />
+        <Route path="/shop/payment-success" element={<PaypalSuccessPage />} />
+        <Route path="/shop/payment-failed" element={<PaypalFailed />} />
 
         <Route
           path="/auth"

@@ -1,10 +1,10 @@
 const express = require("express");
 
 const {
-  createOrder,
+  createOrderWithPayPal,
   getAllOrdersByUser,
   getOrderDetails,
-  //   capturePayment,
+  capturePayment,
   getAllOrdersOfAllUsers,
   updateOrderStatus,
 } = require("../controllers/order_controller");
@@ -13,8 +13,8 @@ const { checkAdmin } = require("../middleware/auth");
 
 const router = express.Router();
 
-router.post("/create", authMiddleware, createOrder);
-// router.post("/capture", capturePayment);
+router.post("/create", authMiddleware, createOrderWithPayPal);
+router.post("/capture", authMiddleware, capturePayment);
 router.get("/list", authMiddleware, getAllOrdersByUser);
 router.get("/details/:id", getOrderDetails);
 

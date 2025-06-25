@@ -22,6 +22,7 @@
     "jsonwebtoken": "^9.0.2",
     "multer": "^2.0.0",
     "paypal-rest-sdk": "^1.8.1",
+    "paystack": "^2.0.1",
     "pg": "^8.16.0"
   }
 }
