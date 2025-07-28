@@ -1,32 +1,17 @@
 const db = require("../db");
 
 const Products = {
-  async create({
-    name,
-    images,
-    price,
-    stock_quantity,
-    category,
-    sub_category,
-  }) {
+  async create({ name, images, price, stock, category, sub_category }) {
     // Validate required fields
-    if (!name || !price || !stock_quantity) {
-      throw new Error("Missing required fields (name, price, stock_quantity)");
+    if (!name || !price || !stock) {
+      throw new Error("Missing required fields (name, price, stock)");
     }
     const query = `
-    INSERT INTO products (name, images, price, stock_quantity, category, sub_category) 
+    INSERT INTO products (name, images, price, stock, category, sub_category) 
     VALUES ($1, $2, $3, $4, $5, $6) 
-    RETURNING product_id AS id, name, images, price, stock_quantity, category, sub_category, created_at
+    RETURNING product_id AS id, name, images, price, stock, category, sub_category, created_at
   `;
-    const values = [
-      name,
-      images,
-
-      price,
-      stock_quantity,
-      category,
-      sub_category,
-    ];
+    const values = [name, images || [], price, stock, category, sub_category];
     const { rows } = await db.query(query, values);
     return rows[0];
   },

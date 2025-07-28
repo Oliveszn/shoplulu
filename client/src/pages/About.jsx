@@ -1,20 +1,26 @@
 import React from "react";
 import Footer from "../components/common/Footer";
+import { Blurhash } from "react-blurhash";
 
 const About = () => {
   return (
     <div>
       <div className="relative">
+        {/* <Blurhash
+          hash="L4840yEL0L~DD$9sIo?H0z-q^*D%"
+          width={400}
+          height={300}
+          resolutionX={100}
+          resolutionY={100}
+          punch={1}
+          style={{ width: "100%", height: "100%" }}
+        /> */}
         <img
           src="images/about.jpg"
           className="storeimg"
           alt=""
           loading="lazy"
         />
-
-        {/* <div className="absolute inset-0 flex items-center justify-center text-center ">
-       
-        </div> */}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 mx-auto px-6 md:px-8 py-8 md:py-18">

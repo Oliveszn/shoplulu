@@ -17,7 +17,7 @@ const AdminProducts = () => {
     name: "",
     images: [],
     price: "",
-    stock_quantity: "",
+    stock: "",
     category: "",
     sub_category: "",
   };
@@ -43,7 +43,6 @@ const AdminProducts = () => {
 
   const onSubmit = (e) => {
     e.preventDefault();
-    console.log("FormData:", formData);
     const productData = {
       ...formData,
       images: uploadedImageUrls,
@@ -83,13 +82,6 @@ const AdminProducts = () => {
         dispatch(fetchAllProducts());
       }
     });
-  }
-
-  function isFormValid() {
-    return Object.keys(formData)
-      .filter((currentKey) => currentKey !== "averageReview")
-      .map((key) => formData[key] !== "")
-      .every((item) => item);
   }
 
   useEffect(() => {
@@ -145,12 +137,10 @@ const AdminProducts = () => {
           <div className="py-6">
             <CommonForm
               formData={formData}
-              // setFormData={setFormData}
               setFormData={(newData) => setFormData(newData)}
               onSubmit={onSubmit}
               buttonText={currentEditedId !== null ? "Edit" : "Add"}
               formControls={addProductFormElements}
-              isBtnDisabled={!isFormValid()}
             />
           </div>
         </div>

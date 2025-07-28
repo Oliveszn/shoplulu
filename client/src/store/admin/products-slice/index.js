@@ -9,9 +9,8 @@ const initialState = {
 
 export const addNewProduct = createAsyncThunk(
   "/products/addnewproduct",
-  async (formData, { getState }) => {
+  async (formData, { rejectWithValue }) => {
     try {
-      const token = getState().auth.token || localStorage.getItem("token");
       const response = await axios.post(
         `${import.meta.env.VITE_API_URL}/api/products/add`,
         formData,
@@ -19,12 +18,13 @@ export const addNewProduct = createAsyncThunk(
           withCredentials: true,
         }
       );
-      console.log("Token:", token);
       return response?.data;
     } catch (error) {
-      console.log(error);
       //this particular error is to get message from the backend and its very good when gettting backend
       console.log("Full error details:", error.response.data);
+      return rejectWithValue(
+        error.response?.data || { message: "Network error" }
+      );
     }
   }
 );

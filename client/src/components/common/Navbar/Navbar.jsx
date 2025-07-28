@@ -19,7 +19,7 @@ const Navbar = () => {
   ];
   return (
     <>
-      <nav className="w-full fixed z-50 top-0 bg-[#ffffff] shadow-bottom">
+      <nav className="w-full sticky z-50 top-0 bg-[#ffffff] shadow-bottom">
         <div className="flex flex-row container mx-auto items-center justify-between py-6 px-2">
           <div className="flex items-center justify-start ">
             <ul className="hidden md:flex flex-row items-center gap-6">
@@ -46,8 +46,6 @@ const Navbar = () => {
                               : "translate-y-0 opacity-0 invisible"
                           }`}
                           style={{ top: "var(--navbar-height, 20px)" }}
-                          // onMouseEnter={() => setIsShopHovered(true)}
-                          // onMouseLeave={() => setIsShopHovered(false)}
                         >
                           <div className="mx-aut relative top-6 p-6 bg-priColor rounded-xl shadow-xl ">
                             <div className="grid grid-cols-[15%_85%] relative z-10">
@@ -152,7 +150,49 @@ const Navbar = () => {
           </div>
 
           <div className="absolute left-1/2 transform -translate-x-1/2 ">
-            <h1>LOGO</h1>
+            <svg width="200" height="60" viewBox="0 0 200 60">
+              <rect
+                x="10"
+                y="20"
+                width="20"
+                height="20"
+                rx="2"
+                fill="#6b7280"
+                stroke="#6b7280"
+                strokeWidth="1.5"
+              />
+              <path
+                d="M15 20 Q15 15 20 15 Q25 15 25 20"
+                fill="none"
+                stroke="#6b7280"
+                strokeWidth="1.5"
+              />
+              <circle cx="20" cy="28" r="1.5" fill="#fbbf24" />
+
+              <text
+                x="45"
+                y="35"
+                fontSize="20"
+                fontWeight="bold"
+                fill="#111"
+                fontFamily="Arial, sans-serif"
+              >
+                ShopLulu
+              </text>
+
+              <defs>
+                <linearGradient
+                  id="horizGradient"
+                  x1="0%"
+                  y1="0%"
+                  x2="100%"
+                  y2="100%"
+                >
+                  <stop offset="0%" stopColor="#fdf2f8" />
+                  <stop offset="100%" stopColor="#fce7f3" />
+                </linearGradient>
+              </defs>
+            </svg>
           </div>
 
           <div className="flex items-center ml-auto justify-end md:gap-6">
@@ -232,7 +272,6 @@ const Navbar = () => {
           </div>
         </div>
       </nav>
-      {/* Drawer component */}
       <MuiDrawer
         isOpen={isDrawerOpen}
         onClose={() => setIsDrawerOpen(false)}
@@ -242,8 +281,7 @@ const Navbar = () => {
         <div className="">
           {status === "loading" ? (
             <div className="flex justify-center items-center">
-              <span className="loader" />{" "}
-              {/* You can replace with a spinner component */}
+              <span className="loader" />
             </div>
           ) : cart?.items?.length > 0 ? (
             <>

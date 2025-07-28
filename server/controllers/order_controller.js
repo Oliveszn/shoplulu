@@ -170,7 +170,6 @@ const createOrderWithPayPal = async (req, res) => {
 
     // Validate and format cart items
     const formattedItems = cartItems.map((item) => {
-      // Ensure price is a number and properly formatted
       const price = parseFloat(item.price);
       const quantity = parseInt(item.quantity);
 
@@ -183,7 +182,7 @@ const createOrderWithPayPal = async (req, res) => {
       }
 
       return {
-        name: item.name.substring(0, 127), // PayPal has 127 char limit
+        name: item.name.substring(0, 127),
         sku: item.productId.toString(),
         price: price.toFixed(2),
         currency: "USD",
@@ -208,35 +207,6 @@ const createOrderWithPayPal = async (req, res) => {
       });
     }
 
-    // Create PayPal payment configuration
-    // const create_payment_json = {
-    //   intent: "sale",
-    //   payer: {
-    //     payment_method: "paypal",
-    //   },
-    //   redirect_urls: {
-    //     return_url: `${process.env.CLIENT_BASE_URL}/paypal-return`,
-    //     cancel_url: `${process.env.CLIENT_BASE_URL}/paypal-cancel`,
-    //   },
-    //   transactions: [
-    //     {
-    //       item_list: {
-    //         items: cartItems.map((item) => ({
-    //           name: item.name,
-    //           sku: item.productId,
-    //           price: item.price,
-    //           currency: "NGN",
-    //           quantity: item.quantity.toFixed(2),
-    //         })),
-    //       },
-    //       amount: {
-    //         currency: "NGN",
-    //         total: totalAmount.toFixed(2),
-    //       },
-    //       description: "Online store purchase",
-    //     },
-    //   ],
-    // };
     const create_payment_json = {
       intent: "sale",
       payer: {
@@ -267,16 +237,6 @@ const createOrderWithPayPal = async (req, res) => {
       "PayPal payment JSON:",
       JSON.stringify(create_payment_json, null, 2)
     );
-
-    // Create PayPal payment
-    // paypal.payment.create(create_payment_json, async (error, paymentInfo) => {
-    //   if (error) {
-    //     console.log("PayPal payment creation error:", error);
-    //     return res.status(500).json({
-    //       success: false,
-    //       message: "Error while creating PayPal payment",
-    //     });
-    //   }
 
     paypal.payment.create(create_payment_json, async (error, paymentInfo) => {
       if (error) {

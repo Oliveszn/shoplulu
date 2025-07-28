@@ -19,8 +19,17 @@ const ImageUpload = ({
   const handleImageFileChange = (e) => {
     const selectedFiles = Array.from(e.target.files);
     if (selectedFiles.length > 0) {
+      // Validate file types
+      const validFiles = selectedFiles.filter((file) =>
+        file.type.startsWith("image/")
+      );
+
+      if (validFiles.length !== selectedFiles.length) {
+        alert("Please select only image files");
+      }
+
       // Combine existing files with new ones (up to maxFiles)
-      const updatedFiles = [...imageFiles, ...selectedFiles].slice(0, maxFiles);
+      const updatedFiles = [...imageFiles, ...validFiles].slice(0, maxFiles);
       setImageFiles(updatedFiles);
     }
   };
@@ -33,28 +42,44 @@ const ImageUpload = ({
     e.preventDefault();
     const droppedFiles = Array.from(e.dataTransfer.files);
     if (droppedFiles.length > 0) {
-      const updatedFiles = [...imageFiles, ...droppedFiles].slice(0, maxFiles);
+      // Validate file types
+      const validFiles = droppedFiles.filter((file) =>
+        file.type.startsWith("image/")
+      );
+
+      const updatedFiles = [...imageFiles, ...validFiles].slice(0, maxFiles);
       setImageFiles(updatedFiles);
     }
   };
 
   const handleRemoveImage = (index) => {
     const updatedFiles = imageFiles.filter((_, i) => i !== index);
+    const updatedUrls = uploadedImageUrls.filter((_, i) => i !== index);
+
     setImageFiles(updatedFiles);
+    setUploadedImageUrls(updatedUrls);
+
     if (updatedFiles.length === 0 && inputRef.current) {
       inputRef.current.value = "";
     }
   };
 
   const uploadImagesToCloudinary = async () => {
+    // Only upload files that haven't been uploaded yet
+    const filesToUpload = imageFiles.filter(
+      (_, index) => !uploadedImageUrls[index]
+    );
+
+    if (filesToUpload.length === 0) return;
+
     setImageLoadingState(true);
 
     try {
       const formData = new FormData();
 
       // Append each file to FormData under the same field name ("images")
-      imageFiles.forEach((file) => {
-        formData.append("images", file); // Must match backend's `multer` field name
+      filesToUpload.forEach((file) => {
+        formData.append("images", file);
       });
 
       const response = await axios.post(
@@ -62,16 +87,20 @@ const ImageUpload = ({
         formData,
         {
           headers: {
-            "Content-Type": "multipart/form-data", // Required for file uploads
+            "Content-Type": "multipart/form-data",
           },
         }
       );
 
       if (response.data.success) {
-        setUploadedImageUrls(response.data.urls); // Store all URLs
+        // Append new URLs to existing ones
+        setUploadedImageUrls((prev) => [...prev, ...response.data.urls]);
+      } else {
+        throw new Error(response.data.message || "Upload failed");
       }
     } catch (error) {
       console.error("Upload failed:", error);
+      alert(`Upload failed: ${error.response?.data?.message || error.message}`);
     } finally {
       setImageLoadingState(false);
     }
@@ -158,6 +187,12 @@ const ImageUpload = ({
           </div>
         )}
       </div>
+
+      {uploadedImageUrls.length > 0 && (
+        <div className="mt-2 text-sm text-green-600">
+          {uploadedImageUrls.length} image(s) ready for upload
+        </div>
+      )}
     </div>
   );
 };

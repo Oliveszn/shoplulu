@@ -95,7 +95,7 @@ const Shop = () => {
       <Route
         index
         element={
-          <div className="pt-30 px-8 md:px-6">
+          <div className="px-8 md:px-6">
             <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-4">
               {productList?.map((productItem, i) => (
                 <Shoptile

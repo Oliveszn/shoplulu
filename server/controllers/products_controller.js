@@ -8,23 +8,6 @@ const {
 
 //handle image upload
 const handleImageUpload = async (req, res) => {
-  // try {
-  //   const b64 = Buffer.from(req.file.buffer).toString("base64");
-  //   const url = "data:" + req.file.mimetype + ";base64," + b64;
-  //   const result = await imageUploadUtils(url);
-
-  //   res.json({
-  //     success: true,
-  //     result,
-  //   });
-  // } catch (error) {
-  //   console.log(error);
-  //   res.json({
-  //     success: false,
-  //     message: "error occured",
-  //   });
-  // }
-
   try {
     // Check if files exist
     if (!req.files || req.files.length === 0) {
@@ -34,43 +17,104 @@ const handleImageUpload = async (req, res) => {
       });
     }
 
+    console.log(`Received ${req.files.length} files for upload`);
+
+    // Validate file types
+    const validImageTypes = [
+      "image/jpeg",
+      "image/jpg",
+      "image/png",
+      "image/webp",
+    ];
+    const invalidFiles = req.files.filter(
+      (file) => !validImageTypes.includes(file.mimetype)
+    );
+
+    if (invalidFiles.length > 0) {
+      return res.status(400).json({
+        success: false,
+        message: `Invalid file types detected. Only JPEG, PNG, and WebP are allowed.`,
+        invalidFiles: invalidFiles.map((f) => f.originalname),
+      });
+    }
+
+    // Check file sizes (10MB limit per file)
+    const oversizedFiles = req.files.filter(
+      (file) => file.size > 10 * 1024 * 1024
+    );
+    if (oversizedFiles.length > 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Some files exceed the 10MB size limit",
+        oversizedFiles: oversizedFiles.map((f) => f.originalname),
+      });
+    }
+
     // Upload all images
     const results = await uploadMultipleImages(req.files);
 
-    // Extract URLs
-    const urls = results.map((result) => result.secure_url);
+    // Validate upload results
+    if (!results || results.length === 0) {
+      throw new Error("No upload results received from Cloudinary");
+    }
+
+    // Extract URLs and additional info
+    const uploadedImages = results.map((result, index) => ({
+      url: result.secure_url,
+      publicId: result.public_id,
+      originalName: req.files[index].originalname,
+      size: req.files[index].size,
+    }));
+
+    console.log(`Successfully uploaded ${uploadedImages.length} images`);
 
     res.json({
       success: true,
-      urls, // Return array of URLs
+      urls: uploadedImages.map((img) => img.url), // For backward compatibility
+      images: uploadedImages, // More detailed info
+      count: uploadedImages.length,
     });
   } catch (error) {
     console.error("Upload error:", error);
+
+    // Handle specific Cloudinary errors
+    if (error.http_code) {
+      return res.status(400).json({
+        success: false,
+        message: "Cloudinary upload failed",
+        error: error.message,
+        details: process.env.NODE_ENV === "development" ? error : undefined,
+      });
+    }
+
     res.status(500).json({
       success: false,
       message: "Error occurred during upload",
-      error: error.message,
+      error:
+        process.env.NODE_ENV === "development"
+          ? error.message
+          : "Internal server error",
     });
   }
 };
 //add a new product
 const addProduct = async (req, res) => {
   try {
-    const { name, images, price, stock_quantity, category, sub_category } =
-      req.body;
-
+    const { name, images, price, stock, category, sub_category } = req.body;
     // Validate input
-    if (!name || !price || !stock_quantity) {
+    if (!name || !price || !stock) {
       return res
         .status(400)
         .json({ success: false, message: "Missing required fields" });
     }
 
+    // this to ensure images is an array (handle empty arrays)
+    const imageArray = Array.isArray(images) ? images : [];
     const newlyCreatedProduct = await Products.create({
       name,
-      images,
+      images: imageArray,
       price,
-      stock_quantity,
+      stock,
       category,
       sub_category,
     });
@@ -80,7 +124,6 @@ const addProduct = async (req, res) => {
       data: newlyCreatedProduct,
     });
   } catch (error) {
-    console.error("error in product:", error.message);
     res.status(500).json({
       success: false,
       message: "Error occured",
