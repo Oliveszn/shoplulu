@@ -25,7 +25,7 @@ router.put("/edit/:id", editProduct);
 router.delete("/delete/:id", deleteProduct);
 
 //for users
+router.get("/filter", getFilteredProducts);
 router.get("/:id", getProductDetails);
-router.get("/", getFilteredProducts);
 
 module.exports = router;

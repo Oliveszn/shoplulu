@@ -1,22 +1,59 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import CurrencyDropdown from "../CurrencyDropdown";
 import MuiDrawer from "../../ui/MuiDrawer";
 import MobileNav from "./MobileNav";
 import { subCategoriesByCategory } from "../../../config";
 import CartWrapper from "../../cart/CartWrapper";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { showSnackbar } from "../../../store/ui/snackbarslice";
+import { getFilteredProducts } from "../../../store/admin/products-slice";
 
 const Navbar = () => {
+  const navigate = useNavigate();
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isShopHovered, setIsShopHovered] = useState(false);
   const [isMobileNav, setIsMobileNav] = useState(false);
   const { cart, status } = useSelector((state) => state.cart);
+  const dispatch = useDispatch();
   let links = [
     { name: "SHOP", link: "/shop" },
     { name: "ABOUT", link: "/about" },
     { name: "OUR STORE", link: "/store" },
   ];
+
+  // Function to handle subcategory click and navigation
+  const handleSubcategoryClick = (category, subCategory) => {
+    setIsShopHovered(false);
+
+    const categorySlug = category.toLowerCase().replace(/\s+/g, "-");
+    const subCategorySlug = subCategory.label
+      .toLowerCase()
+      .replace(/\s+/g, "-");
+
+    const filterQuery = {
+      category: category,
+      sub_category: subCategory.label,
+    };
+
+    dispatch(getFilteredProducts(filterQuery))
+      .unwrap()
+      .then((result) => {
+        navigate(`/shop/${categorySlug}/${subCategorySlug}`);
+      })
+      .catch((error) => {
+        const errorMessage =
+          typeof error === "string"
+            ? error
+            : error?.message || "Failed to load products";
+        dispatch(
+          showSnackbar({
+            message: errorMessage,
+            anchorOrigin: { vertical: "top", horizontal: "center" },
+          })
+        );
+      });
+  };
   return (
     <>
       <nav className="w-full sticky z-50 top-0 bg-[#ffffff] shadow-bottom">
@@ -100,7 +137,13 @@ const Navbar = () => {
                                         {subCategories.map((subCat) => (
                                           <li
                                             key={subCat.id}
-                                            className="capitalize"
+                                            className="capitalize hover:text-red-600 transition-colors duration-200 py-1"
+                                            onClick={() =>
+                                              handleSubcategoryClick(
+                                                category,
+                                                subCat
+                                              )
+                                            }
                                           >
                                             {subCat.label}
                                           </li>
@@ -150,49 +193,51 @@ const Navbar = () => {
           </div>
 
           <div className="absolute left-1/2 transform -translate-x-1/2 ">
-            <svg width="200" height="60" viewBox="0 0 200 60">
-              <rect
-                x="10"
-                y="20"
-                width="20"
-                height="20"
-                rx="2"
-                fill="#6b7280"
-                stroke="#6b7280"
-                strokeWidth="1.5"
-              />
-              <path
-                d="M15 20 Q15 15 20 15 Q25 15 25 20"
-                fill="none"
-                stroke="#6b7280"
-                strokeWidth="1.5"
-              />
-              <circle cx="20" cy="28" r="1.5" fill="#fbbf24" />
+            <Link to="/">
+              <svg width="200" height="60" viewBox="0 0 200 60">
+                <rect
+                  x="10"
+                  y="20"
+                  width="20"
+                  height="20"
+                  rx="2"
+                  fill="#6b7280"
+                  stroke="#6b7280"
+                  strokeWidth="1.5"
+                />
+                <path
+                  d="M15 20 Q15 15 20 15 Q25 15 25 20"
+                  fill="none"
+                  stroke="#6b7280"
+                  strokeWidth="1.5"
+                />
+                <circle cx="20" cy="28" r="1.5" fill="#fbbf24" />
 
-              <text
-                x="45"
-                y="35"
-                fontSize="20"
-                fontWeight="bold"
-                fill="#111"
-                fontFamily="Arial, sans-serif"
-              >
-                ShopLulu
-              </text>
-
-              <defs>
-                <linearGradient
-                  id="horizGradient"
-                  x1="0%"
-                  y1="0%"
-                  x2="100%"
-                  y2="100%"
+                <text
+                  x="45"
+                  y="35"
+                  fontSize="20"
+                  fontWeight="bold"
+                  fill="#111"
+                  fontFamily="Arial, sans-serif"
                 >
-                  <stop offset="0%" stopColor="#fdf2f8" />
-                  <stop offset="100%" stopColor="#fce7f3" />
-                </linearGradient>
-              </defs>
-            </svg>
+                  ShopLulu
+                </text>
+
+                <defs>
+                  <linearGradient
+                    id="horizGradient"
+                    x1="0%"
+                    y1="0%"
+                    x2="100%"
+                    y2="100%"
+                  >
+                    <stop offset="0%" stopColor="#fdf2f8" />
+                    <stop offset="100%" stopColor="#fce7f3" />
+                  </linearGradient>
+                </defs>
+              </svg>
+            </Link>
           </div>
 
           <div className="flex items-center ml-auto justify-end md:gap-6">

@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import reactLogo from "./assets/react.svg";
 import viteLogo from "/vite.svg";
-import Navbar from "./components/common/Navbar/navbar";
 import Home from "./pages/Home";
 import Store from "./pages/Store";
 import About from "./pages/About";
@@ -26,6 +25,8 @@ import PaypalReturnPage from "./pages/PaypalReturn";
 import PaypalSuccessPage from "./pages/PaypalSucess";
 import PaypalFailed from "./pages/PaypalFailed";
 import PayPalCancelPage from "./pages/PaypalCancelled";
+import Navbar from "./components/common/Navbar/Navbar";
+import FilteredProducts from "./pages/FilteredProducts";
 
 function App() {
   const location = useLocation();
@@ -63,6 +64,10 @@ function App() {
         <Route path="/store" element={<Store />} />
 
         <Route path="/shop/*" element={<Shop />} />
+        <Route
+          path="/shop/:category/:subCategory"
+          element={<FilteredProducts />}
+        />
         <Route path="/shop/checkout" element={<Checkout />} />
         <Route path="/shop/account" element={<UserAccount />} />
         <Route path="/shop/paypal-return" element={<PaypalReturnPage />} />

@@ -60,6 +60,42 @@ const Products = {
     const { rows } = await db.query(query, [id]);
     return rows[0]; // Returns the deleted product or undefined
   },
+
+  async getFiltered(filters) {
+    let query = `
+    SELECT product_id AS id, name, images, price, stock, category, sub_category, created_at
+    FROM products
+    WHERE 1=1
+  `;
+
+    const values = [];
+    let valueIndex = 1;
+
+    // Build WHERE conditions dynamically
+    if (filters.category) {
+      query += ` AND LOWER(category) = LOWER($${valueIndex})`;
+      values.push(filters.category);
+      valueIndex++;
+    }
+
+    if (filters.sub_category) {
+      query += ` AND LOWER(sub_category) = LOWER($${valueIndex})`;
+      values.push(filters.sub_category);
+      valueIndex++;
+    }
+
+    // Add ordering
+    query += ` ORDER BY created_at DESC`;
+
+    try {
+      const { rows } = await db.query(query, values);
+
+      return rows;
+    } catch (dbError) {
+      console.error("❌ Database filter error:", dbError);
+      throw new Error(`Database filter operation failed: ${dbError.message}`);
+    }
+  },
 };
 
 module.exports = Products;

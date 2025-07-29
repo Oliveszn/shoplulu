@@ -87,6 +87,25 @@ export const fetchProductDetails = createAsyncThunk(
   }
 );
 
+export const getFilteredProducts = createAsyncThunk(
+  "/products/filter",
+  async (filterQuery, { rejectWithValue }) => {
+    try {
+      const response = await axios.get(
+        `${import.meta.env.VITE_API_URL}/api/products/filter`,
+        {
+          params: filterQuery,
+        }
+      );
+      return response?.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data || { message: "Network error" }
+      );
+    }
+  }
+);
+
 const AdminProductsSlice = createSlice({
   name: "adminProduct",
   initialState,
@@ -114,6 +133,17 @@ const AdminProductsSlice = createSlice({
       .addCase(fetchProductDetails.rejected, (state, action) => {
         state.isLoading = false;
         state.productDetails = null;
+      })
+      .addCase(getFilteredProducts.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(getFilteredProducts.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.productList = action.payload.data || action.payload;
+      })
+      .addCase(getFilteredProducts.rejected, (state, action) => {
+        state.isLoading = false;
+        state.productList = [];
       });
   },
 });

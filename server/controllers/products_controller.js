@@ -234,40 +234,26 @@ const getProductDetails = async (req, res) => {
 
 const getFilteredProducts = async (req, res) => {
   try {
-    const { category = "all", sub_category = "all" } = req.query;
+    const { category, sub_category } = req.query;
 
-    // 2. Initialize base query and values
-    let query = "SELECT * FROM products WHERE 1=1";
-    const values = [];
-    let valueCounter = 1;
+    // Build the filter conditions
+    const filters = {};
+    if (category) filters.category = category;
+    if (sub_category) filters.sub_category = sub_category;
 
-    // 3. Handle category filter
-    if (category !== "all") {
-      const categories = category.split(",");
-      query += ` AND category = ANY($${valueCounter++})`;
-      values.push(categories);
-    }
+    // Call your database method
+    const filteredProducts = await Products.getFiltered(filters);
 
-    // 4. Handle sub-category filter
-    if (sub_category !== "all") {
-      const subCategories = sub_category.split(",");
-      query += ` AND sub_category = ANY($${valueCounter++})`;
-      values.push(subCategories);
-    }
-
-    // 5. Execute query
-    const { rows: products } = await db.query(query, values);
-
-    res.status(200).json({
+    res.json({
       success: true,
-      data: products,
-      count: products.length,
+      data: filteredProducts,
+      count: filteredProducts.length,
     });
   } catch (error) {
-    console.error("filter error:", error.message);
     res.status(500).json({
       success: false,
-      message: "Some error occured",
+      message: "Error filtering products",
+      error: process.env.NODE_ENV === "development" ? error.message : undefined,
     });
   }
 };

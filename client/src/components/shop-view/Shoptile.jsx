@@ -43,6 +43,7 @@ const Shoptile = ({ product, handleGetProductDetails, handleAddtoCart }) => {
               src={product?.images?.[0]}
               alt={product?.title}
               className="absolute inset-0 w-full h-full object-cover transition-all duration-500 opacity-100"
+              loading="lazy"
             />
             <img
               src={product?.images?.[1]}
