@@ -63,7 +63,7 @@ const Products = {
 
   async getFiltered(filters) {
     let query = `
-    SELECT product_id AS id, name, images, price, stock, category, sub_category, created_at
+    SELECT product_id, name, images, price, stock, category, sub_category, created_at
     FROM products
     WHERE 1=1
   `;

@@ -90,29 +90,36 @@ const Home = () => {
     dispatch(fetchAllProducts());
   }, [dispatch]);
   return (
-    <Routes>
-      <Route
-        index
-        element={
-          <div className="px-8 md:px-6">
-            <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-4">
-              {productList?.map((productItem, i) => (
-                <Shoptile
-                  product={productItem}
-                  key={productItem.product_id || i}
-                  handleAddtoCart={handleAddtoCart}
-                />
-              ))}
-            </div>
-          </div>
-        }
-      />
+    // <Routes>
+    //   <Route
+    //     index
+    //     element={
+    //       <div className="px-8 md:px-6">
+    //         <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-4">
+    //           {productList?.map((productItem, i) => (
+    //             <Shoptile
+    //               product={productItem}
+    //               key={productItem.product_id || i}
+    //               handleAddtoCart={handleAddtoCart}
+    //             />
+    //           ))}
+    //         </div>
+    //       </div>
+    //     }
+    //   />
 
-      <Route
-        path="product/:slug/:id"
-        element={<ProductDetails handleAddtoCart={handleAddtoCart} />}
-      />
-    </Routes>
+    //   <Route
+    //     path="product/:slug/:id"
+    //     element={<ProductDetails handleAddtoCart={handleAddtoCart} />}
+    //   />
+    // </Routes>
+    <div className="px-8 md:px-6">
+      <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-4">
+        {productList?.map((productItem, i) => (
+          <Shoptile product={productItem} key={productItem.product_id || i} />
+        ))}
+      </div>
+    </div>
   );
 };
 

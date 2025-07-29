@@ -22,15 +22,15 @@ const Shoptile = ({ product, handleGetProductDetails, handleAddtoCart }) => {
 
   const goToProductDetails = async () => {
     try {
+      const productId = product.product_id || product.id;
+
       const slug = createSlug(product.name);
-      navigate(`/shop/product/${slug}/${product.product_id}`);
-      const result = await dispatch(
-        fetchProductDetails(product.product_id)
-      ).unwrap();
+      navigate(`/shop/product/${slug}/${productId}`);
     } catch (error) {
       console.error("Failed to fetch product:", error);
     }
   };
+
   return (
     <>
       <div
@@ -88,14 +88,6 @@ const Shoptile = ({ product, handleGetProductDetails, handleAddtoCart }) => {
               </span>
             </div>
           </div>
-
-          {/* <button
-          onClick={() => handleAddtoCart(product.product_id, product.stock)}
-          disabled={status === "loading"}
-          className="w-full"
-        >
-          {status === "loading" ? "Adding..." : "Add to Cart"}
-        </button> */}
         </div>
       </div>
     </>

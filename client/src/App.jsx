@@ -68,6 +68,7 @@ function App() {
           path="/shop/:category/:subCategory"
           element={<FilteredProducts />}
         />
+        <Route path="/shop/product/:slug/:id" element={<ProductDetails />} />
         <Route path="/shop/checkout" element={<Checkout />} />
         <Route path="/shop/account" element={<UserAccount />} />
         <Route path="/shop/paypal-return" element={<PaypalReturnPage />} />
