@@ -27,6 +27,7 @@ import PaypalFailed from "./pages/PaypalFailed";
 import PayPalCancelPage from "./pages/PaypalCancelled";
 import Navbar from "./components/common/Navbar/Navbar";
 import FilteredProducts from "./pages/FilteredProducts";
+import Footer from "./components/common/Footer";
 
 function App() {
   const location = useLocation();
@@ -105,6 +106,7 @@ function App() {
         </Route>
         <Route path="*" element={<NotFound />} />
       </Routes>
+      <Footer />
     </>
   );
 }

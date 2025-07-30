@@ -1,5 +1,3 @@
-import React from "react";
-import Footer from "../components/common/Footer";
 import { Blurhash } from "react-blurhash";
 
 const About = () => {
@@ -45,8 +43,6 @@ const About = () => {
           </div>
         </div>
       </div>
-
-      <Footer />
     </div>
   );
 };

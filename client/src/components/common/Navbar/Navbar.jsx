@@ -17,7 +17,7 @@ const Navbar = () => {
   const { cart, status } = useSelector((state) => state.cart);
   const dispatch = useDispatch();
   let links = [
-    { name: "SHOP", link: "/shop" },
+    { name: "SHOP", link: "/#" },
     { name: "ABOUT", link: "/about" },
     { name: "OUR STORE", link: "/store" },
   ];

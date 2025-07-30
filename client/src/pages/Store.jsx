@@ -1,6 +1,3 @@
-import React from "react";
-import Footer from "../components/common/Footer";
-
 const Store = () => {
   return (
     <div>
@@ -28,8 +25,6 @@ const Store = () => {
           </div>
         </div>
       </div>
-
-      <Footer />
     </div>
   );
 };

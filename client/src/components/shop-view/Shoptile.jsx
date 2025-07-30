@@ -38,7 +38,7 @@ const Shoptile = ({ product, handleGetProductDetails, handleAddtoCart }) => {
         onClick={goToProductDetails}
       >
         <div className="">
-          <div className="relative group h-[400px] overflow-hidden">
+          <div className="relative group h-[320px] overflow-hidden">
             <img
               src={product?.images?.[0]}
               alt={product?.title}
@@ -75,17 +75,17 @@ const Shoptile = ({ product, handleGetProductDetails, handleAddtoCart }) => {
               </svg>
             </div>
           </div>
-          <div className="p-2 flex items-center justify-between">
-            <h2 className="text-xs font-normal mb-2 mt-2 uppercase">
+          <div className="p-2 flex items-center flex-col">
+            <h2 className="text-sm font-normal my-2 uppercase ">
               {product?.name}
             </h2>
-            <div className="flex justify-between items-center mb-2">
-              <span
+            <div className="flex justify-between items-center  ">
+              <p
                 className="
-               text-xs font-normal text-primary"
+               text-sm font-normal text-primary "
               >
-                ₦{product?.price}
-              </span>
+                ₦{Number(product?.price).toLocaleString()}
+              </p>
             </div>
           </div>
         </div>

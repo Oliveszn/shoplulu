@@ -8,10 +8,13 @@ import {
   fetchCartItems,
   fetchGuestCartItems,
 } from "../store/cart-slice";
+import ShoppingBagSpinner from "../components/common/LoadingSpinner";
 
 const ProductDetails = ({}) => {
   const { slug, id } = useParams();
-  const { productDetails } = useSelector((state) => state.adminProducts);
+  const { productDetails, isLoading } = useSelector(
+    (state) => state.adminProducts
+  );
   const dispatch = useDispatch();
   const { cart } = useSelector((state) => state.cart);
   const { user } = useSelector((state) => state.auth);
@@ -87,20 +90,95 @@ const ProductDetails = ({}) => {
     return <div>Loading product or product not found...</div>;
   }
 
-  return (
-    <div>
-      <div>
-        <img src={productDetails.images?.[0]} />
-        <h1 className="">{productDetails.name}</h1>
+  if (isLoading) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="text-center">
+          <ShoppingBagSpinner />
+          <p className="mt-4 text-gray-600">Loading products...</p>
+        </div>
       </div>
-      <button
-        className="p-4 bg-red-500 text-white cursor-pointer hover:opacity-50"
-        onClick={() =>
-          handleAddtoCart(productDetails.product_id, productDetails.stock)
-        }
-      >
-        Add to Cart
-      </button>
+    );
+  }
+  console.log(productDetails);
+
+  return (
+    <div className="max-w-4xl mx-auto p-6 bg-white my-10">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="aspect-square overflow-hidden rounded-lg bg-gray-100">
+          <img
+            src={productDetails.images?.[0]}
+            alt={productDetails.name}
+            className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+          />
+        </div>
+
+        <div className="flex flex-col space-y-6">
+          {productDetails.category && (
+            <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800 w-fit capitalize">
+              {productDetails.category}
+            </span>
+          )}
+
+          <h1 className="text-3xl font-bold text-gray-900 leading-tight">
+            {productDetails.name}
+          </h1>
+
+          {productDetails.price && (
+            <div className="text-2xl font-semibold text-gray-900">
+              ${productDetails.price}
+            </div>
+          )}
+
+          <div className="flex items-center space-x-2">
+            <span className="text-sm font-medium text-gray-700">Stock:</span>
+            <span
+              className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                productDetails.stock > 10
+                  ? "bg-green-100 text-green-800"
+                  : productDetails.stock > 0
+                  ? "bg-yellow-100 text-yellow-800"
+                  : "bg-red-100 text-red-800"
+              }`}
+            >
+              {productDetails.stock > 0
+                ? `${productDetails.stock} available`
+                : "Out of stock"}
+            </span>
+          </div>
+
+          <div className="pt-4">
+            <button
+              className={`w-full py-3 px-6 rounded-lg font-semibold text-white transition-all duration-200 ${
+                productDetails.stock > 0
+                  ? "bg-blue-600 hover:bg-blue-700 hover:shadow-lg transform hover:-translate-y-0.5"
+                  : "bg-gray-400 cursor-not-allowed"
+              }`}
+              onClick={() =>
+                handleAddtoCart(productDetails.product_id, productDetails.stock)
+              }
+              disabled={productDetails.stock === 0}
+            >
+              {productDetails.stock > 0 ? "Add to Cart" : "Out of Stock"}
+            </button>
+          </div>
+
+          <div className="border-t pt-6 space-y-3">
+            <div className="flex justify-between text-sm">
+              <span className="text-gray-500">SKU:</span>
+              <span className="text-gray-900">{productDetails.product_id}</span>
+            </div>
+            {productDetails.sub_category && (
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-500">Sub-Category:</span>
+                <span className="text-gray-900 capitalize">
+                  {productDetails.sub_category}
+                </span>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

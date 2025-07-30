@@ -47,7 +47,7 @@ const FilteredProducts = () => {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900 mx-auto"></div>
+          <ShoppingBagSpinner />
           <p className="mt-4 text-gray-600">Loading products...</p>
         </div>
       </div>
@@ -71,11 +71,7 @@ const FilteredProducts = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {productList && productList.length > 0 ? (
           productList?.map((productItem, i) => (
-            <Shoptile
-              product={productItem}
-              key={productItem.product_id || i}
-              // handleAddtoCart={handleAddtoCart}
-            />
+            <Shoptile product={productItem} key={productItem.product_id || i} />
           ))
         ) : (
           <div className="col-span-full text-center py-12">
