@@ -4,7 +4,11 @@ import { Button } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import CartContent from "../components/cart/CartContent";
 import { showSnackbar } from "../store/ui/snackbarslice";
-import { clearApprovalURL, createNewOrder } from "../store/orders-slice";
+import {
+  clearApprovalURL,
+  createNewOrder,
+  setPaymentInitiated,
+} from "../store/orders-slice";
 import { useEffect } from "react";
 
 const Checkout = () => {
@@ -57,7 +61,8 @@ const Checkout = () => {
         quantity: item?.quantity,
       })),
     };
-
+    ///we added it here to protect paypla/payment routes if user has not initiated payment
+    dispatch(setPaymentInitiated(true));
     dispatch(createNewOrder(orderData)).then((data) => {
       console.log(data, "sangam");
       if (data?.payload?.success) {

@@ -1,8 +1,22 @@
 import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { Navigate, useNavigate } from "react-router-dom";
+import { clearPaymentInitiated } from "../store/orders-slice";
 
 const PayPalCancelPage = () => {
   const navigate = useNavigate();
+  const { paymentInitiated } = useSelector((state) => state.order);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    return () => {
+      dispatch(clearPaymentInitiated());
+    };
+  }, []);
+
+  if (!paymentInitiated) {
+    return <Navigate to="/" replace />;
+  }
 
   useEffect(() => {
     // Clear any stored order data

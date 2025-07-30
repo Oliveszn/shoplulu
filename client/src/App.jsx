@@ -72,8 +72,22 @@ function App() {
           element={<FilteredProducts />}
         />
         <Route path="/shop/product/:slug/:id" element={<ProductDetails />} />
-        <Route path="/shop/checkout" element={<Checkout />} />
-        <Route path="/shop/account" element={<UserAccount />} />
+        <Route
+          path="/shop/checkout"
+          element={
+            <CheckAuth isAuthenticated={isAuthenticated} user={user}>
+              <Checkout />{" "}
+            </CheckAuth>
+          }
+        />
+        <Route
+          path="/shop/account"
+          element={
+            <CheckAuth isAuthenticated={isAuthenticated} user={user}>
+              <UserAccount />{" "}
+            </CheckAuth>
+          }
+        />
         <Route path="/shop/paypal-return" element={<PaypalReturnPage />} />
         <Route path="/shop/paypal-cancel" element={<PayPalCancelPage />} />
         <Route path="/shop/payment-success" element={<PaypalSuccessPage />} />

@@ -1,9 +1,11 @@
 import React from "react";
 import CartContent from "./CartContent";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 const CartWrapper = ({ cart }) => {
   const navigate = useNavigate();
+  const { user, isAuthenticated } = useSelector((state) => state.auth);
   const totalCartAmount =
     cart?.items?.length > 0
       ? cart?.items?.reduce(
@@ -29,12 +31,16 @@ const CartWrapper = ({ cart }) => {
           <span className="font-bold">${totalCartAmount}</span>
         </div>
         <button
-          className="w-full mt-6 bg-amber-950 text-white py-4 px-2 cursor-pointer"
+          className={`w-full mt-6  text-white py-4 px-2  ${
+            !isAuthenticated
+              ? "bg-gray-500 cursor-not-allowed"
+              : "bg-amber-950 cursor-pointer"
+          }`}
           onClick={() => {
             navigate("/shop/checkout");
           }}
         >
-          Proceed to Checkout
+          {isAuthenticated ? "Proceed to Checkout" : "Login to checkout"}
         </button>
       </div>
     </div>

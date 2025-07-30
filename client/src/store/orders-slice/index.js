@@ -1,6 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 
+///added paymentinitiated to protect paypal routes
 const initialState = {
   approvalURL: null,
   isLoading: false,
@@ -8,6 +9,7 @@ const initialState = {
   orderList: [],
   orderDetails: null,
   paymentId: null,
+  paymentInitiated: false,
 };
 
 export const createNewOrder = createAsyncThunk(
@@ -132,6 +134,12 @@ const orderSlice = createSlice({
     clearApprovalURL: (state) => {
       state.approvalURL = null;
     },
+    setPaymentInitiated: (state, action) => {
+      state.paymentInitiated = action.payload;
+    },
+    clearPaymentInitiated: (state) => {
+      state.paymentInitiated = false;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -209,6 +217,11 @@ const orderSlice = createSlice({
   },
 });
 
-export const { resetOrderDetails, clearApprovalURL } = orderSlice.actions;
+export const {
+  resetOrderDetails,
+  clearApprovalURL,
+  setPaymentInitiated,
+  clearPaymentInitiated,
+} = orderSlice.actions;
 
 export default orderSlice.reducer;

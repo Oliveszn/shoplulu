@@ -1,8 +1,23 @@
 import { Button } from "@mui/material";
-import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { Navigate, useNavigate } from "react-router-dom";
+import { clearPaymentInitiated } from "../store/orders-slice";
+import { useEffect } from "react";
 
 const PaypalSuccessPage = () => {
   const navigate = useNavigate();
+  const { paymentInitiated } = useSelector((state) => state.order);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    return () => {
+      dispatch(clearPaymentInitiated());
+    };
+  }, []);
+
+  if (!paymentInitiated) {
+    return <Navigate to="/" replace />;
+  }
 
   return (
     <div className="p-10">

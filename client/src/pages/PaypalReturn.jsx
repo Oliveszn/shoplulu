@@ -1,17 +1,33 @@
 import React from "react";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useLocation, useSearchParams } from "react-router-dom";
-import { capturePayment } from "../store/orders-slice";
+import {
+  Navigate,
+  useLocation,
+  useNavigate,
+  useSearchParams,
+} from "react-router-dom";
+import { capturePayment, clearPaymentInitiated } from "../store/orders-slice";
 
 const PaypalReturnPage = () => {
   const dispatch = useDispatch();
   const location = useLocation();
+  const navigate = useNavigate();
   const params = new URLSearchParams(location.search);
   const [searchParams] = useSearchParams();
   const paymentId = params.get("paymentId");
   const payerId = params.get("PayerID");
-  const { isLoading } = useSelector((state) => state.shopOrder);
+  const { paymentInitiated } = useSelector((state) => state.order);
+
+  useEffect(() => {
+    return () => {
+      dispatch(clearPaymentInitiated());
+    };
+  }, []);
+
+  if (!paymentInitiated) {
+    return <Navigate to="/" replace />;
+  }
 
   //   useEffect(() => {
   //     if (paymentId && payerId) {
@@ -69,7 +85,5 @@ const PaypalReturnPage = () => {
     </div>
   );
 };
-
-
 
 export default PaypalReturnPage;
