@@ -28,6 +28,7 @@ import PayPalCancelPage from "./pages/PaypalCancelled";
 import Navbar from "./components/common/Navbar/Navbar";
 import FilteredProducts from "./pages/FilteredProducts";
 import Footer from "./components/common/Footer";
+import ScrollToTop from "./components/common/Scrolltotop";
 
 function App() {
   const location = useLocation();
@@ -58,6 +59,7 @@ function App() {
     <>
       <Navbar />
       <MuiSnackbar />
+      <ScrollToTop />
 
       <Routes>
         <Route path="/" element={<Home />} />
