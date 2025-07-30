@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { addressFormControls } from "../../config";
-import { Card, CardHeader } from "@mui/material";
+import { Card, CardContent, CardHeader } from "@mui/material";
 import AddressCard from "./AddressCard";
 import CommonForm from "../common/Form";
 import {
@@ -11,6 +11,7 @@ import {
   fetchAllAddresses,
 } from "../../store/address-slice";
 import { showSnackbar } from "../../store/ui/snackbarslice";
+import { MapPin, Plus } from "lucide-react";
 
 const Address = ({ setCurrentSelectedAddress, selectedId }) => {
   const initialAddressFormData = {
@@ -122,7 +123,7 @@ const Address = ({ setCurrentSelectedAddress, selectedId }) => {
       const addresses = res?.payload?.data;
       if (addresses && addresses.length > 0) {
         const defaultAddress = addresses.find((a) => a.is_default);
-        if (defaultAddress) {
+        if (defaultAddress && typeof setCurrentSelectedAddress === "function") {
           setCurrentSelectedAddress(defaultAddress);
         }
       }
@@ -130,37 +131,65 @@ const Address = ({ setCurrentSelectedAddress, selectedId }) => {
   }, [dispatch]);
 
   return (
-    <Card className="w-full p-4 shadow-md" sx={{ maxWidth: 400 }}>
-      <div className="mb-5 p-3 grid grid-cols-1 sm:grid-cols-2  gap-2">
+    <div className="space-y-6">
+      {/* Address Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900">Manage Addresses</h2>
+          <p className="text-gray-600 mt-1">Add up to 3 delivery addresses</p>
+        </div>
+        <div className="flex items-center space-x-2 text-sm text-gray-500">
+          <MapPin size={16} />
+          <span>{addressList?.length || 0}/3 addresses</span>
+        </div>
+      </div>
+
+      {/* Address Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {addressList && addressList.length > 0 ? (
           addressList.map((singleAddressItem, index) => (
             <AddressCard
-              selectedId={selectedId}
-              handleDeleteAddress={handleDeleteAddress}
               addressInfo={singleAddressItem}
+              handleDeleteAddress={handleDeleteAddress}
               handleEditAddress={handleEditAddress}
               setCurrentSelectedAddress={setCurrentSelectedAddress}
               key={index}
             />
           ))
         ) : (
-          <p>No addresses found.</p>
+          <div className="col-span-full text-center py-12">
+            <MapPin size={48} className="mx-auto text-gray-400 mb-4" />
+            <p className="text-gray-500">
+              No addresses found. Add your first address!
+            </p>
+          </div>
         )}
       </div>
-      <CardHeader
-        title={currentEditedId !== null ? "Edit Address" : "Add New Address"}
-      />
-      <div className="space-y-3">
-        <CommonForm
-          formControls={addressFormControls}
-          formData={formData}
-          setFormData={setFormData}
-          buttonText={currentEditedId !== null ? "Edit" : "Add"}
-          onSubmit={handleManageAddress}
-          isBtnDisabled={!isFormValid()}
-        />
-      </div>
-    </Card>
+
+      {/* Add/Edit Address Form */}
+      <Card className="bg-gray-50 border-2 border-dashed border-gray-300">
+        <CardHeader>
+          <div className="flex items-center space-x-2">
+            <Plus size={20} className="text-blue-600" />
+            <h3 className="text-lg font-semibold">
+              {currentEditedId !== null ? "Edit Address" : "Add New Address"}
+            </h3>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <CommonForm
+              formControls={addressFormControls}
+              formData={formData}
+              setFormData={setFormData}
+              buttonText={currentEditedId !== null ? "Edit" : "Add"}
+              onSubmit={handleManageAddress}
+              isBtnDisabled={!isFormValid()}
+            />
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   );
 };
 

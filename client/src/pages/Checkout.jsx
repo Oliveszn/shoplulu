@@ -58,8 +58,6 @@ const Checkout = () => {
       })),
     };
 
-    console.log("Sending order data:", orderData);
-
     dispatch(createNewOrder(orderData)).then((data) => {
       console.log(data, "sangam");
       if (data?.payload?.success) {
@@ -84,18 +82,8 @@ const Checkout = () => {
       dispatch(clearApprovalURL());
     };
   }, [dispatch]);
-
   return (
     <div className="flex flex-col">
-      <div>hel</div>
-      <div>hel</div>
-      <div>hel</div>
-      <div>hel</div>
-      <div>hel</div>
-      <div>hel</div>
-      <div>hel</div>
-      <div>hel</div>
-      <div>hel</div>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mt-5 p-5">
         <Address
           selectedId={currentSelectedAddress}

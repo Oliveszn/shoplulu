@@ -8,6 +8,7 @@ import CartWrapper from "../../cart/CartWrapper";
 import { useDispatch, useSelector } from "react-redux";
 import { showSnackbar } from "../../../store/ui/snackbarslice";
 import { getFilteredProducts } from "../../../store/admin/products-slice";
+import { UserCircle } from "lucide-react";
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -16,6 +17,7 @@ const Navbar = () => {
   const [isMobileNav, setIsMobileNav] = useState(false);
   const { cart, status } = useSelector((state) => state.cart);
   const dispatch = useDispatch();
+  const { isAuthenticated, user } = useSelector((state) => state.auth);
   let links = [
     { name: "SHOP", link: "/#" },
     { name: "ABOUT", link: "/about" },
@@ -278,7 +280,25 @@ const Navbar = () => {
             </div>
 
             <div className="hidden md:block">
-              <Link to="/auth/login">LOGIN</Link>
+              {/* <Link to="/auth/login">LOGIN</Link> */}
+              {isAuthenticated && user ? (
+                <Link
+                  to="/shop/account"
+                  className="flex items-center gap-2 text-gray-700 hover:text-black"
+                >
+                  <UserCircle className="w-6 h-6" />
+                  {/* <span className="hidden lg:inline">
+                    {user?.username || "Account"}
+                  </span> */}
+                </Link>
+              ) : (
+                <Link
+                  to="/auth/login"
+                  className="text-gray-700 hover:text-black font-medium"
+                >
+                  LOGIN
+                </Link>
+              )}
             </div>
 
             <div>

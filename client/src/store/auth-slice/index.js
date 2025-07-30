@@ -76,6 +76,25 @@ export const checkAuth = createAsyncThunk(
   }
 );
 
+export const logoutUser = createAsyncThunk(
+  "/auth/logout",
+
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await axios.post(
+        `${import.meta.env.VITE_API_URL}/api/auth/logout`,
+        null,
+        {
+          withCredentials: true,
+        }
+      );
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
+
 const authSlice = createSlice({
   name: "auth",
   initialState,
@@ -122,12 +141,12 @@ const authSlice = createSlice({
         state.isLoading = false;
         state.user = null;
         state.isAuthenticated = false;
+      })
+      .addCase(logoutUser.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.user = null;
+        state.isAuthenticated = false;
       });
-    //   .addCase(logoutUser.fulfilled, (state, action) => {
-    //     state.isLoading = false;
-    //     state.user = null;
-    //     state.isAuthenticated = false;
-    //   });
   },
 });
 export const { setUser } = authSlice.actions;
