@@ -1,33 +1,54 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import { ChevronDown, ChevronUp } from "lucide-react";
+import React, { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { Link, useNavigate } from "react-router-dom";
+import { subCategoriesByCategory } from "../../../config";
+import { getFilteredProducts } from "../../../store/admin/products-slice";
 
-const MobileNav = () => {
+const MobileNav = ({ isMobileNav, setIsMobileNav }) => {
+  const { isAuthenticated, user } = useSelector((state) => state.auth);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const [openCategory, setOpenCategory] = useState(null);
+  let links = [
+    { name: "ABOUT", link: "/about" },
+    { name: "OUR STORE", link: "/store" },
+  ];
+
+  const handleCategoryClick = (category) => {
+    setOpenCategory(openCategory === category ? null : category);
+  };
+  const handleSubcategoryClick = (category, subCategory) => {
+    const categorySlug = category.toLowerCase().replace(/\s+/g, "-");
+    const subCategorySlug = subCategory.label
+      .toLowerCase()
+      .replace(/\s+/g, "-");
+
+    const filterQuery = {
+      category: category,
+      sub_category: subCategory.label,
+    };
+
+    dispatch(getFilteredProducts(filterQuery))
+      .unwrap()
+      .then((result) => {
+        navigate(`/shop/${categorySlug}/${subCategorySlug}`);
+      })
+      .catch((error) => {
+        const errorMessage =
+          typeof error === "string"
+            ? error
+            : error?.message || "Failed to load products";
+        dispatch(
+          showSnackbar({
+            message: errorMessage,
+            anchorOrigin: { vertical: "top", horizontal: "center" },
+          })
+        );
+      });
+  };
   return (
     <div className="px-6 overflow-auto">
-      {/* <header>
-        <button className="cursor-pointer ml-auto flex">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="22"
-            height="22"
-            viewBox="0 0 22 22"
-            fill="none"
-          >
-            <path
-              d="M8.17 13.83L13.83 8.17M13.83 13.83L8.17 8.17M11 21C16.5 21 21 16.5 21 11C21 5.5 16.5 1 11 1C5.5 1 1 5.5 1 11C1 16.5 5.5 21 11 21Z"
-              stroke="#1A0C0B"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            ></path>
-          </svg>
-        </button>
-
-        <div className="absolute left-1/2 transform -translate-x-1/2 ">
-          <h1>LOGO</h1>
-        </div>
-      </header> */}
-
       <hr className="my-6" />
 
       <main className="flex flex-col justify-start">
@@ -38,25 +59,70 @@ const MobileNav = () => {
             <li>SS23 COLLECTION</li>
             <li>WINTER COLLECION</li>
           </ul>
-          <ul className="flex flex-col gap-3">
+          {/* <ul className="flex flex-col gap-3">
             <li>MEN</li>
             <li>WOMEN</li>
             <li>ACCESSORIES</li>
-          </ul>
+          </ul> */}
+          <div className="md:hidden w-full bg-white">
+            <ul className="flex flex-col gap-3">
+              {Object.entries(subCategoriesByCategory).map(
+                ([category, subCategories]) => (
+                  <li key={category}>
+                    <div
+                      className="flex justify-between items-center capitalize rounded-md hover:bg-gray-100 cursor-pointer text-lg  text-gray-800"
+                      onClick={() => handleCategoryClick(category)}
+                    >
+                      {category}
+                      {openCategory === category ? (
+                        <ChevronUp size={20} className="text-gray-600" />
+                      ) : (
+                        <ChevronDown size={20} className="text-gray-600" />
+                      )}
+                    </div>
+                    {openCategory === category && (
+                      <ul className="flex flex-col gap-2 pt-2 pb-1">
+                        {subCategories.map((subCat) => (
+                          <li key={subCat.id}>
+                            <Link
+                              onClick={() => {
+                                setIsMobileNav(false);
+                                handleSubcategoryClick(category, subCat);
+                              }}
+                              className="block py-1  rounded-md hover:bg-blue-50 text-gray-700 hover:text-blue-600 transition-colors duration-200"
+                            >
+                              {subCat.label}
+                            </Link>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </li>
+                )
+              )}
+            </ul>
+          </div>
         </div>
 
         <hr className="my-6" />
 
         <div>
-          <Link>Login</Link>
+          {isAuthenticated ? <Link>Login</Link> : <button>Logout</button>}
         </div>
 
         <hr className="my-6" />
 
         <div>
           <ul className="flex flex-col gap-3">
-            <li>ABOUT</li>
-            <li>OUR STORE</li>
+            {links.map((item) => (
+              <Link
+                onClick={() => setIsMobileNav(false)}
+                to={item.link}
+                key={item.name}
+              >
+                {item.name}
+              </Link>
+            ))}
             <li>FAQS</li>
           </ul>
         </div>

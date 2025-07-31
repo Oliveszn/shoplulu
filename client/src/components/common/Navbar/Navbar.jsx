@@ -280,16 +280,12 @@ const Navbar = () => {
             </div>
 
             <div className="hidden md:block">
-              {/* <Link to="/auth/login">LOGIN</Link> */}
               {isAuthenticated && user ? (
                 <Link
                   to="/shop/account"
                   className="flex items-center gap-2 text-gray-700 hover:text-black"
                 >
                   <UserCircle className="w-6 h-6" />
-                  {/* <span className="hidden lg:inline">
-                    {user?.username || "Account"}
-                  </span> */}
                 </Link>
               ) : (
                 <Link
@@ -370,7 +366,7 @@ const Navbar = () => {
         anchor="left"
         width="100vw"
       >
-        <MobileNav />
+        <MobileNav isMobileNav={isMobileNav} setIsMobileNav={setIsMobileNav} />
       </MuiDrawer>
     </>
   );
