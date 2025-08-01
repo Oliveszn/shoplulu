@@ -1,9 +1,10 @@
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronDown, ChevronUp, LogOut } from "lucide-react";
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import { subCategoriesByCategory } from "../../../config";
 import { getFilteredProducts } from "../../../store/admin/products-slice";
+import { logoutUser } from "../../../store/auth-slice";
 
 const MobileNav = ({ isMobileNav, setIsMobileNav }) => {
   const { isAuthenticated, user } = useSelector((state) => state.auth);
@@ -47,8 +48,12 @@ const MobileNav = ({ isMobileNav, setIsMobileNav }) => {
         );
       });
   };
+  const handleLogout = () => {
+    dispatch(logoutUser());
+    navigate("/", { replace: true });
+  };
   return (
-    <div className="px-6 overflow-auto">
+    <div className="px-6 overflow-auto md:hidden">
       <hr className="my-6" />
 
       <main className="flex flex-col justify-start">
@@ -59,12 +64,7 @@ const MobileNav = ({ isMobileNav, setIsMobileNav }) => {
             <li>SS23 COLLECTION</li>
             <li>WINTER COLLECION</li>
           </ul>
-          {/* <ul className="flex flex-col gap-3">
-            <li>MEN</li>
-            <li>WOMEN</li>
-            <li>ACCESSORIES</li>
-          </ul> */}
-          <div className="md:hidden w-full bg-white">
+          <div className=" w-full bg-white">
             <ul className="flex flex-col gap-3">
               {Object.entries(subCategoriesByCategory).map(
                 ([category, subCategories]) => (
@@ -107,7 +107,19 @@ const MobileNav = ({ isMobileNav, setIsMobileNav }) => {
         <hr className="my-6" />
 
         <div>
-          {isAuthenticated ? <Link>Login</Link> : <button>Logout</button>}
+          {isAuthenticated && user ? (
+            <button
+              className="flex items-center cursor-pointer gap-2 text-red-600"
+              onClick={handleLogout}
+            >
+              <LogOut size={10} />
+              Logout
+            </button>
+          ) : (
+            <Link to="/login" className=" hover:underline">
+              Login
+            </Link>
+          )}
         </div>
 
         <hr className="my-6" />

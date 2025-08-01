@@ -9,22 +9,31 @@ const initialState = {
 
 export const registerUser = createAsyncThunk(
   "auth/register",
-  async (formData) => {
-    const response = await axios.post(
-      `${import.meta.env.VITE_API_URL}/api/auth/register`,
-      formData,
-      {
-        withCredentials: true,
-      }
-    );
-    return response.data;
+  async (formData, { rejectWithValue }) => {
+    try {
+      const guestId = localStorage.getItem("guestId");
+      const updatedFormData = {
+        ...formData,
+        guestId: guestId || undefined,
+      };
+      const response = await axios.post(
+        `${import.meta.env.VITE_API_URL}/api/auth/register`,
+        updatedFormData,
+        {
+          withCredentials: true,
+        }
+      );
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
   }
 );
 
 export const loginUser = createAsyncThunk(
   "/auth/login",
 
-  async (formData) => {
+  async (formData, { rejectWithValue }) => {
     try {
       //the backend expects to receive guestId while log in
       //so this is added to send guest id to the backend
@@ -108,8 +117,8 @@ const authSlice = createSlice({
       })
       .addCase(registerUser.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.user = null;
-        state.isAuthenticated = false;
+        state.user = action.payload.success ? action.payload.user : null;
+        state.isAuthenticated = action.payload.success;
       })
       .addCase(registerUser.rejected, (state, action) => {
         state.isLoading = false;

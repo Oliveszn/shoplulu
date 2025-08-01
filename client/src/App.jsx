@@ -29,6 +29,7 @@ import Navbar from "./components/common/Navbar/Navbar";
 import FilteredProducts from "./pages/FilteredProducts";
 import Footer from "./components/common/Footer";
 import ScrollToTop from "./components/common/Scrolltotop";
+import AuthRegister from "./pages/auth/Register";
 
 function App() {
   const location = useLocation();
@@ -76,7 +77,7 @@ function App() {
           path="/shop/checkout"
           element={
             <CheckAuth isAuthenticated={isAuthenticated} user={user}>
-              <Checkout />{" "}
+              <Checkout />
             </CheckAuth>
           }
         />
@@ -84,7 +85,7 @@ function App() {
           path="/shop/account"
           element={
             <CheckAuth isAuthenticated={isAuthenticated} user={user}>
-              <UserAccount />{" "}
+              <UserAccount />
             </CheckAuth>
           }
         />
@@ -102,7 +103,7 @@ function App() {
           }
         >
           <Route path="login" element={<AuthLogin />} />
-          {/* <Route path="register" element={<AuthRegister />} /> */}
+          <Route path="register" element={<AuthRegister />} />
         </Route>
 
         <Route
@@ -116,9 +117,6 @@ function App() {
           <Route path="dashboard" element={<AdminDashboard />} />
           <Route path="products" element={<AdminProducts />} />
           <Route path="orders" element={<AdminOrders />} />
-          {/* <Route path="news" element={<AdminNews />} /> */}
-          {/* <Route path="contacts" element={<AdminContacts />} /> */}
-          {/* <Route path="about" element={<AdminAbout />} /> */}
         </Route>
         <Route path="*" element={<NotFound />} />
       </Routes>

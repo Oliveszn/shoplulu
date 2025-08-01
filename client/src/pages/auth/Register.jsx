@@ -1,14 +1,15 @@
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
-import { loginUser } from "../../store/auth-slice";
-import { loginFormControls } from "../../config";
+import { registerUser } from "../../store/auth-slice";
+import { registerFormControls } from "../../config";
 import CommonForm from "../../components/common/Form";
 import { showSnackbar } from "../../store/ui/snackbarslice";
 
-const AuthLogin = () => {
+const AuthRegister = () => {
   const initialState = {
     username: "",
+    email: "",
     password: "",
   };
   const [formData, setFormData] = useState(initialState);
@@ -20,11 +21,11 @@ const AuthLogin = () => {
     setIsLoading(true);
 
     try {
-      const data = await dispatch(loginUser(formData));
+      const data = await dispatch(registerUser(formData));
       if (data?.payload?.success) {
         dispatch(
           showSnackbar({
-            message: "Login Successful",
+            message: data?.payload?.message || "Registration successful",
             anchorOrigin: { vertical: "top", horizontal: "center" },
           })
         );
@@ -32,7 +33,7 @@ const AuthLogin = () => {
       } else {
         dispatch(
           showSnackbar({
-            message: data?.payload?.message || "Login Failed",
+            message: data?.payload?.message || "Registration failed",
             anchorOrigin: { vertical: "top", horizontal: "center" },
           })
         );
@@ -40,7 +41,8 @@ const AuthLogin = () => {
     } catch (error) {
       dispatch(
         showSnackbar({
-          message: error,
+          message: "Registration error:",
+          error,
           anchorOrigin: { vertical: "top", horizontal: "center" },
         })
       );
@@ -51,20 +53,22 @@ const AuthLogin = () => {
 
   return (
     <div className="mx-auto w-full max-w-lg">
-      <div className="text-center mb-6">
-        <h1 className="text-3xl font-bold  text-gray-900 mb-2">Welcome back</h1>
+      <div className="text-center mb-4">
+        <h1 className="text-4xl font-bold tracking-tight text-gray-900 mb-3">
+          Create account
+        </h1>
         <p className="text-lg text-gray-600 mb-2">
-          Sign in to continue your shopping journey
+          Join thousands of happy customers today
         </p>
 
-        <div className="bg-gray-50 rounded-xl p-2 border border-gray-100">
+        <div className="bg-gray-50 rounded-2xl p-4 border border-gray-100">
           <p className="text-gray-600">
-            Don't have an account?{" "}
+            Already have an account?{" "}
             <Link
-              className="font-semibold text-indigo-600 hover:text-indigo-700 transition-colors duration-200 hover:underline"
-              to="/auth/register"
+              className="font-semibold text-emerald-600 hover:text-emerald-700 transition-colors duration-200 hover:underline"
+              to="/auth/login"
             >
-              Create one now
+              Sign in instead
             </Link>
           </p>
         </div>
@@ -72,13 +76,13 @@ const AuthLogin = () => {
 
       <div className="bg-white rounded-3xl shadow-xl border border-gray-100 p-8 relative overflow-hidden">
         {/* Decoration */}
-        <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-bl from-indigo-50 to-transparent rounded-full -translate-y-20 translate-x-20"></div>
-        <div className="absolute bottom-0 left-0 w-32 h-32 bg-gradient-to-tr from-purple-50 to-transparent rounded-full translate-y-16 -translate-x-16"></div>
+        <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-bl from-emerald-50 to-transparent rounded-full -translate-y-20 translate-x-20"></div>
+        <div className="absolute bottom-0 left-0 w-32 h-32 bg-gradient-to-tr from-teal-50 to-transparent rounded-full translate-y-16 -translate-x-16"></div>
 
         <div className="relative z-10">
           <CommonForm
-            formControls={loginFormControls}
-            buttonText={isLoading ? "Signing In..." : "Sign In"}
+            formControls={registerFormControls}
+            buttonText={isLoading ? "Creating Account..." : "Create Account"}
             formData={formData}
             setFormData={setFormData}
             onSubmit={onSubmit}
@@ -93,13 +97,13 @@ const AuthLogin = () => {
               </div>
               <div className="relative flex justify-center text-sm">
                 <span className="px-4 bg-white text-gray-500">
-                  Or continue with
+                  Or sign up with
                 </span>
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
-              <button className="flex items-center justify-center px-4 py-3 border border-gray-200 rounded-xl text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 hover:border-gray-300 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+              <button className="flex items-center justify-center px-4 py-3 border border-gray-200 rounded-xl text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 hover:border-gray-300 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2">
                 <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
                   <path
                     fill="#4285F4"
@@ -121,7 +125,7 @@ const AuthLogin = () => {
                 Google
               </button>
 
-              <button className="flex items-center justify-center px-4 py-3 border border-gray-200 rounded-xl text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 hover:border-gray-300 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+              <button className="flex items-center justify-center px-4 py-3 border border-gray-200 rounded-xl text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 hover:border-gray-300 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2">
                 <svg
                   className="w-5 h-5 mr-2"
                   fill="currentColor"
@@ -133,27 +137,10 @@ const AuthLogin = () => {
               </button>
             </div>
           </div>
-
-          <div className="mt-8 pt-6 border-t border-gray-100">
-            <div className="flex items-center justify-between text-sm">
-              <Link
-                to="/forgot-password"
-                className="text-indigo-600 hover:text-indigo-700 transition-colors duration-200 hover:underline"
-              >
-                Forgot password?
-              </Link>
-              <Link
-                to="/help"
-                className="text-gray-500 hover:text-gray-700 transition-colors duration-200"
-              >
-                Need help?
-              </Link>
-            </div>
-          </div>
         </div>
       </div>
     </div>
   );
 };
 
-export default AuthLogin;
+export default AuthRegister;

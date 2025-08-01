@@ -1,18 +1,10 @@
 import { Blurhash } from "react-blurhash";
+import Image, { buildImageSrc } from "../components/common/Image";
 
 const About = () => {
   return (
     <div>
       <div className="relative">
-        {/* <Blurhash
-          hash="L4840yEL0L~DD$9sIo?H0z-q^*D%"
-          width={400}
-          height={300}
-          resolutionX={100}
-          resolutionY={100}
-          punch={1}
-          style={{ width: "100%", height: "100%" }}
-        /> */}
         <img
           src="images/about.jpg"
           className="storeimg"

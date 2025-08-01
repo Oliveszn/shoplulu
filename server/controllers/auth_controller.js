@@ -9,13 +9,13 @@ const registerUser = async (req, res) => {
   try {
     // Validation
     if (!username || !email || !password) {
-      return res.status(401).json({ error: "Missing fields" });
+      return res.status(400).json({ error: "Missing fields" });
     }
 
     // if user exists
     const user = await User.findByUsername(username);
     if (user)
-      return res.status(401).json({
+      return res.status(400).json({
         success: false,
         message: "UserName Already exists. Please try again",
       });
@@ -23,7 +23,7 @@ const registerUser = async (req, res) => {
     // if email exists
     const checkEmail = await User.findByEmail(email);
     if (checkEmail)
-      return res.status(401).json({
+      return res.status(400).json({
         success: false,
         message: "Email Already exists. Please try again",
       });
@@ -32,7 +32,7 @@ const registerUser = async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const hash = await bcrypt.hash(password, salt);
 
-    //Create user (pure DB operation)
+    //Create user
     const newUser = await User.create({
       username,
       email,
@@ -40,13 +40,36 @@ const registerUser = async (req, res) => {
       role: "user", // Default role
     });
 
-    //Respond
-    res.status(201).json({
-      id: newUser.id,
-      username: newUser.username,
-      email: newUser.email,
-      role: newUser.role,
-    });
+    const token = jwt.sign(
+      { userId: newUser.id, username: newUser.username, role: newUser.role },
+      process.env.JWT_SECRET,
+      { expiresIn: "1d" }
+    );
+
+    // Auto-merge guest cart if guestId provided
+    const { guestId } = req.body;
+    if (guestId) {
+      await autoMergeGuestCart(newUser.id, guestId);
+    }
+
+    res
+      .cookie("token", token, {
+        httpOnly: true,
+        secure: false,
+        samesite: "strict",
+      })
+      //  secure: process.env.NODE_ENV === 'production', // Should be true in prod
+      .json({
+        success: true,
+        message: "Logged in successfully",
+        token,
+        user: {
+          id: newUser.id,
+          username: newUser.username,
+          email: newUser.email,
+          role: newUser.role,
+        },
+      });
   } catch (error) {
     console.log(error);
     res.status(500).json({ error: "Registration failed" });

@@ -16,11 +16,6 @@ const CheckAuth = ({ isAuthenticated, user, children }) => {
     }
   }
 
-  //function to check if user is not authenticated
-  // if (!isAuthenticated && location.pathname.includes("/admin")) {
-  //   return <Navigate to="/auth/login" />;
-  // }
-  // Prevent unauthenticated users from accessing admin, checkout, or account
   const protectedRoutes = ["/admin", "/shop/checkout", "/shop/account"];
   const isProtected = protectedRoutes.some((path) =>
     location.pathname.startsWith(path)
