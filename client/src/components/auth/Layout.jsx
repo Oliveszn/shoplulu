@@ -10,7 +10,6 @@ const AuthLayout = () => {
     >
       {/* Left Side */}
       <div className="hidden lg:flex items-center justify-center relative w-1/2 px-12">
-        {/* Animated background gradient */}
         <div
           className="absolute inset-0 opacity-90"
           style={{
@@ -20,7 +19,6 @@ const AuthLayout = () => {
         ></div>
         <div className="absolute inset-0 bg-black/20"></div>
 
-        {/* Content */}
         <div className="relative z-10 max-w-lg space-y-6 text-center">
           {/* Logo/Icon */}
           <div className="mx-auto w-10 h-10 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm border border-white/15">

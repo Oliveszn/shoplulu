@@ -6,7 +6,7 @@ import { MapPin, Package, LogOut } from "lucide-react";
 import { useDispatch } from "react-redux";
 import { logoutUser } from "../store/auth-slice";
 import { useNavigate } from "react-router-dom";
-
+import { HeadProvider, Title, Meta } from "react-head";
 const UserAccount = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -26,6 +26,10 @@ const UserAccount = () => {
   };
   return (
     <div className="min-h-screen bg-gray-50">
+      <HeadProvider>
+        <Title>Account</Title>
+        <Meta name="description" content="Luxury fashion at Shoplulu" />
+      </HeadProvider>
       <div className="bg-white shadow-sm border-b">
         <div className="max-w-6xl mx-auto px-4 py-6">
           <div className="flex items-center justify-between">

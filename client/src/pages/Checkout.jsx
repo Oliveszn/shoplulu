@@ -10,6 +10,7 @@ import {
   setPaymentInitiated,
 } from "../store/orders-slice";
 import { useEffect } from "react";
+import { HeadProvider, Title, Meta } from "react-head";
 
 const Checkout = () => {
   const { user } = useSelector((state) => state.auth);
@@ -89,6 +90,10 @@ const Checkout = () => {
   }, [dispatch]);
   return (
     <div className="flex flex-col">
+      <HeadProvider>
+        <Title>Checkout</Title>
+        <Meta name="description" content="Luxury fashion at Shoplulu" />
+      </HeadProvider>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mt-5 p-5">
         <Address
           selectedId={currentSelectedAddress}
@@ -111,11 +116,14 @@ const Checkout = () => {
             </div>
           </div>
           <div className="mt-4 w-full">
-            <Button onClick={handleInitiatePaypalPayment} className="w-full">
+            <button
+              onClick={handleInitiatePaypalPayment}
+              className="w-full bg-blue-400 text-white"
+            >
               {isPaymentStart
                 ? "Processing Paypal Payment..."
                 : "Checkout with Paypal"}
-            </Button>
+            </button>
           </div>
         </div>
       </div>

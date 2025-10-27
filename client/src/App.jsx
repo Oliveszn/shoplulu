@@ -19,7 +19,7 @@ import { fetchCartItems, fetchGuestCartItems } from "./store/cart-slice";
 import MuiSnackbar from "./components/ui/MuiSnackbar";
 import Checkout from "./pages/Checkout";
 import UserAccount from "./pages/UserAccount";
-import NotFound from "./pages/notfound";
+import NotFound from "./pages/Notfound";
 import AdminOrders from "./pages/admin-view/Orders";
 import PaypalReturnPage from "./pages/PaypalReturn";
 import PaypalSuccessPage from "./pages/PaypalSucess";

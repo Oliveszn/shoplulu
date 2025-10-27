@@ -19,7 +19,15 @@ import {
   TableRow,
 } from "@mui/material";
 import OrderDetails from "./OrderDetails";
-import { Package } from "lucide-react";
+import {
+  Calendar,
+  CheckCircle,
+  Clock,
+  CreditCard,
+  Package,
+  Truck,
+  XCircle,
+} from "lucide-react";
 
 const Orders = () => {
   const [openDetailsDialog, setOpenDetailsDialog] = useState(false);

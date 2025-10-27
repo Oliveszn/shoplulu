@@ -26,3 +26,11 @@ body {
   display: block;
   aspect-ratio: 16/9;
 }
+
+.dropdown-hover-buffer {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  height: 20px; /* small invisible bridge */
+  width: 100%;
+}

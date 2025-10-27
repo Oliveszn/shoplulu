@@ -1,13 +1,13 @@
+import { HeadProvider, Title, Meta } from "react-head";
 const Store = () => {
   return (
     <div>
+      <HeadProvider>
+        <Title>Our Store</Title>
+        <Meta name="description" content="Luxury fashion at Shoplulu" />
+      </HeadProvider>
       <div className="relative">
-        <img
-          src="images/store.png"
-          className="storeimg"
-          alt=""
-          loading="lazy"
-        />
+        <img src="images/store.png" className="storeimg" alt="" />
 
         <div className="absolute inset-0 flex items-center justify-center text-center ">
           <div className=" text-white p-6 rounded-lg max-w-md">

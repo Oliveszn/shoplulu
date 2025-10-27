@@ -32,9 +32,7 @@ const CartWrapper = ({ cart }) => {
         </div>
         <button
           className={`w-full mt-6  text-white py-4 px-2  ${
-            !isAuthenticated
-              ? "bg-gray-500 cursor-not-allowed"
-              : "bg-amber-950 cursor-pointer"
+            !isAuthenticated ? "bg-gray-500" : "bg-amber-950 cursor-pointer"
           }`}
           onClick={() => {
             navigate("/shop/checkout");

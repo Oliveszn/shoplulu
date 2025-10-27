@@ -51,7 +51,6 @@ export const loginUser = createAsyncThunk(
       );
       return response.data;
     } catch (error) {
-      console.error(error);
       return rejectWithValue(error.response.data);
     }
   }
@@ -73,13 +72,11 @@ export const checkAuth = createAsyncThunk(
           },
         }
       );
-      console.log("✅ checkAuth response", response.data);
       return response.data;
     } catch (error) {
       if (error.response?.status === 401) {
         return { success: false, user: null };
       }
-      console.log("❌ checkAuth error", error.response?.data || error.message);
       return rejectWithValue(error.response?.data || error.message);
     }
   }
