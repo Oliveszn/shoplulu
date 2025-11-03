@@ -13,7 +13,6 @@ const orderRoute = require("./routes/orderRoutes");
 ///middleware
 app.use(
   cors({
-    // origin: "http://localhost:5173",
     origin: process.env.CLIENT_BASE_URL,
     methods: ["GET", "POST", "DELETE", "PUT"],
     allowedHeaders: [

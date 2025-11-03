@@ -1,12 +1,13 @@
-// db.js
 require("dotenv").config();
 const { Pool } = require("pg");
 const pool = new Pool({
-  user: process.env.DB_USER,
-  host: process.env.DB_HOST,
-  database: process.env.DB_DATABASE,
-  password: process.env.DB_PASSWORD, // Same as pgAdmin login
-  port: process.env.DB_PORT,
+  // user: process.env.DB_USER,
+  // host: process.env.DB_HOST,
+  // database: process.env.DB_DATABASE,
+  // password: process.env.DB_PASSWORD, // Same as pgAdmin login
+  // port: process.env.DB_PORT,
+  connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false },
 });
 
 module.exports = {
@@ -14,16 +15,25 @@ module.exports = {
   connect: () => pool.connect(),
 };
 
+(async () => {
+  try {
+    const res = await pool.query("SELECT NOW()");
+    console.log("✅ Database connected successfully:", res.rows[0]);
+    // pool.end();
+  } catch (err) {
+    console.error("❌ Database connection failed:", err.message);
+  }
+})();
+
 // CREATE TABLE addresses (
 //   id SERIAL PRIMARY KEY,
 //   user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
 //   address_line1 VARCHAR(255) NOT NULL,
-//   address_line2 VARCHAR(255),
 //   city VARCHAR(100) NOT NULL,
 //   state VARCHAR(100),
 //   postal_code VARCHAR(20) NOT NULL,
-//   country VARCHAR(100) DEFAULT 'Nigeria',
 //   phone VARCHAR(20) NOT NULL,
+//   phone_2 VARCHAR(20),
 //   notes TEXT,
 //   is_default BOOLEAN DEFAULT false,
 //   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),

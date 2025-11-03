@@ -87,7 +87,7 @@ const ProductDetails = ({}) => {
   }, [id, dispatch]);
 
   if (!productDetails) {
-    return <div>Loading product or product not found...</div>;
+    return <div>Product not found...</div>;
   }
 
   if (isLoading) {

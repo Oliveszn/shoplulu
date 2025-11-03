@@ -1,8 +1,5 @@
 const db = require("../db");
 
-db.query("SELECT NOW()")
-  .then(() => console.log("DB connected"))
-  .catch((err) => console.error("DB connection error:", err));
 //middleware
 const validateProducts = async (req, res, next) => {
   const { productId, quantity } = req.body;
