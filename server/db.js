@@ -10,7 +10,7 @@ module.exports = {
   connect: () => pool.connect(),
 };
 
-if (NODE_ENV !== production) {
+if (process.env.NODE_ENV !== "production") {
   (async () => {
     try {
       const res = await pool.query("SELECT NOW()");
