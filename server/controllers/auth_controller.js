@@ -55,10 +55,9 @@ const registerUser = async (req, res) => {
     res
       .cookie("token", token, {
         httpOnly: true,
-        secure: false,
-        samesite: "strict",
+        secure: process.env.NODE_ENV === "production",
+        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
       })
-      //  secure: process.env.NODE_ENV === 'production', // Should be true in prod
       .json({
         success: true,
         message: "Logged in successfully",
@@ -110,10 +109,9 @@ const loginUser = async (req, res) => {
     res
       .cookie("token", token, {
         httpOnly: true,
-        secure: false,
-        samesite: "strict",
+        secure: process.env.NODE_ENV === "production",
+        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
       })
-      //  secure: process.env.NODE_ENV === 'production', // Should be true in prod
       .json({
         success: true,
         message: "Logged in successfully",
@@ -132,10 +130,25 @@ const loginUser = async (req, res) => {
 
 ///logout
 const logout = (req, res) => {
-  res.clearCookie("token").json({
-    success: true,
-    message: "Logged out succesfully",
-  });
+  try {
+    return res
+      .clearCookie("token", {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+        path: "/",
+      })
+      .status(200)
+      .json({
+        success: true,
+        message: "Logged out successfully",
+      });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
 };
 
 ////middleware to check auth status if user does an action and keep user logged in

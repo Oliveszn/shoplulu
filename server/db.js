@@ -1,11 +1,6 @@
 require("dotenv").config();
 const { Pool } = require("pg");
 const pool = new Pool({
-  // user: process.env.DB_USER,
-  // host: process.env.DB_HOST,
-  // database: process.env.DB_DATABASE,
-  // password: process.env.DB_PASSWORD, // Same as pgAdmin login
-  // port: process.env.DB_PORT,
   connectionString: process.env.DATABASE_URL,
   ssl: { rejectUnauthorized: false },
 });
@@ -15,15 +10,16 @@ module.exports = {
   connect: () => pool.connect(),
 };
 
-(async () => {
-  try {
-    const res = await pool.query("SELECT NOW()");
-    console.log("✅ Database connected successfully:", res.rows[0]);
-    // pool.end();
-  } catch (err) {
-    console.error("❌ Database connection failed:", err.message);
-  }
-})();
+if (NODE_ENV !== production) {
+  (async () => {
+    try {
+      const res = await pool.query("SELECT NOW()");
+      console.log("✅ Database connected successfully:", res.rows[0]);
+    } catch (err) {
+      console.error("❌ Database connection failed:", err.message);
+    }
+  })();
+}
 
 // CREATE TABLE addresses (
 //   id SERIAL PRIMARY KEY,
