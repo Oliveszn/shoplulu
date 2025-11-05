@@ -120,7 +120,7 @@ const CommonForm = ({
         <button
           disabled={isBtnDisabled}
           type="submit"
-          className="mt-2 w-full bg-[#e2e8f0] cursor-pointer border border-slate-200 shadow-sm"
+          className="mt-2 w-full bg-gray-300 cursor-pointer border border-slate-200 shadow-sm"
         >
           {buttonText || "Submit"}
         </button>

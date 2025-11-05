@@ -4,9 +4,12 @@ import { fetchAllProducts } from "../store/admin/products-slice";
 import Shoptile from "../components/shop-view/Shoptile";
 import bannerOne from "../../public/images/about.jpg";
 import { HeadProvider, Title, Meta } from "react-head";
+import ShopSkeleton from "../components/shop-view/ShopSkeleton";
 
 const Home = () => {
-  const { productList } = useSelector((state) => state.adminProducts);
+  const { productList, isLoading } = useSelector(
+    (state) => state.adminProducts
+  );
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -22,11 +25,18 @@ const Home = () => {
         <img src={bannerOne} alt="" className="storeimg" />
       </div>
       <div className="mx-auto container">
-        <div className="grid grid-cols-[repeat(auto-fit,minmax(250px,1fr))] gap-10">
-          {productList?.map((productItem, i) => (
-            <Shoptile product={productItem} key={productItem.product_id || i} />
-          ))}
-        </div>
+        {isLoading ? (
+          <ShopSkeleton />
+        ) : (
+          <div className="grid grid-cols-[repeat(auto-fit,minmax(250px,1fr))] gap-10">
+            {productList?.map((productItem, i) => (
+              <Shoptile
+                product={productItem}
+                key={productItem.product_id || i}
+              />
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

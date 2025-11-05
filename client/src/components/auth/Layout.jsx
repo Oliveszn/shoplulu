@@ -10,13 +10,7 @@ const AuthLayout = () => {
     >
       {/* Left Side */}
       <div className="hidden lg:flex items-center justify-center relative w-1/2 px-12">
-        <div
-          className="absolute inset-0 opacity-90"
-          style={{
-            background:
-              "linear-gradient(to bottom right, #4f46e5, #9333ea, #db2777)",
-          }}
-        ></div>
+        <div className="absolute inset-0 opacity-90 bg-[#4f46e5]"></div>
         <div className="absolute inset-0 bg-black/20"></div>
 
         <div className="relative z-10 max-w-lg space-y-6 text-center">

@@ -6,7 +6,7 @@ const MuiDrawer = ({
   isOpen,
   onClose,
   anchor = "right",
-  width = "28vw",
+  width,
   maxWidth = "600px",
   children,
 }) => {
@@ -15,10 +15,18 @@ const MuiDrawer = ({
       anchor={anchor}
       open={isOpen}
       onClose={onClose}
+      // sx={{
+      //   "& .MuiDrawer-paper": {
+      //     width: width,
+      //     maxWidth: maxWidth,
+      //     boxSizing: "border-box",
+      //   },
+      // }}
       sx={{
         "& .MuiDrawer-paper": {
-          width: width,
-          maxWidth: maxWidth,
+          // ✅ Use user-specified width OR fallback to responsive defaults
+          width: width || { xs: "80vw", sm: "60vw", md: "40vw", lg: "30vw" },
+          maxWidth,
           boxSizing: "border-box",
         },
       }}
@@ -54,7 +62,11 @@ MuiDrawer.propTypes = {
   isOpen: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
   anchor: PropTypes.oneOf(["left", "right", "top", "bottom"]),
-  width: PropTypes.string,
+  // width: PropTypes.string,
+  width: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.object, // allows responsive object like { xs: "80vw", md: "40vw" }
+  ]),
   maxWidth: PropTypes.string,
   children: PropTypes.node,
 };

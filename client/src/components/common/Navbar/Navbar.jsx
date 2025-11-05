@@ -303,7 +303,8 @@ const Navbar = () => {
         isOpen={isDrawerOpen}
         onClose={() => setIsDrawerOpen(false)}
         anchor="right"
-        width="30vw"
+        // width="30vw"
+        width={{ xs: "80vw", sm: "70vw", md: "45vw", lg: "30vw" }}
       >
         <div className="">
           {status === "loading" ? (
